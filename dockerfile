@@ -44,6 +44,9 @@ RUN adduser movai sudo &&\
     echo "%sudo ALL=(ALL) NOPASSWD:SETENV: /usr/bin/add-apt-repository" >> /etc/sudoers.d/movai 
 RUN cat /etc/sudoers.d/movai
 
+RUN mkdir -p /opt/mov.ai && \
+    chown movai:movai /opt/mov.ai
+
 # Run everything as mov.ai user
 USER movai
 WORKDIR /home/movai
