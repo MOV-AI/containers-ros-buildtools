@@ -1,0 +1,22 @@
+name: "Deploy - To Dev devops"
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  Deploy:
+    # this job will only run if the PR has been merged
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v1
+    - name: Publish to Registry
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: devops/cpp-buildserver
+        username: ${{secrets.PORTUS_APP_USER}} 
+        password: ${{secrets.PORTUS_APP_TOKEN}} 
+        tags: "latest"
+        registry: registry.cloud.mov.ai
+        buildargs: AWS_ACCESS_KEY=${{secrets.AWS_ACCESS_KEY}},AWS_SECRET_ACESS_KEY=${{secrets.AWS_SECRET_ACCESS_KEY}} 
