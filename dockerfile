@@ -8,6 +8,7 @@ RUN mkdir /movai_projects && \
         python3 \
         cmake \
         python3-pip \
+        python3-bloom \
         git \
         zip \
         unzip \
