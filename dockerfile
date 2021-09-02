@@ -23,6 +23,9 @@ RUN mkdir /movai_projects && \
         debhelper \
         build-essential \
         devscripts \
+        ros-noetic-catkin \
+        python3-catkin-tools \
+        python3-osrf-pycommon \
     && pip3 install --upgrade pip \
     && pip3 install \
         awscli
