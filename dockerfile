@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ros:noetic-robot
 
 RUN useradd -ms /bin/bash movai
 RUN mkdir /movai_projects && \
