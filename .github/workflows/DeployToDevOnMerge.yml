@@ -13,16 +13,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-#      - name: Hadolint melodic
-#        uses: hadolint/hadolint-action@v1.6.0
-#        with:
-#          dockerfile: melodic/Dockerfile
-#          format: tty
-#          failure-threshold: error # optional, default is info
-#          # A space separated string of rules to ignore
-#          ignore: # optional
-#          # Path to a config file
-#          config: # optional
+      - name: Hadolint melodic
+        uses: hadolint/hadolint-action@v1.6.0
+        with:
+          dockerfile: melodic/Dockerfile
+          format: tty
+          failure-threshold: error # optional, default is info
+          # A space separated string of rules to ignore
+          ignore: # optional
+          # Path to a config file
+          config: # optional
 
       - name: Login to Movai Registry
         uses: docker/login-action@v1
@@ -46,16 +46,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-#      - name: Hadolint melodic
-#        uses: hadolint/hadolint-action@v1.6.0
-#        with:
-#          dockerfile: melodic/Dockerfile
-#          format: tty
-#          failure-threshold: error # optional, default is info
-#          # A space separated string of rules to ignore
-#          ignore: # optional
-#          # Path to a config file
-#          config: # optional
+      - name: Hadolint noetic
+        uses: hadolint/hadolint-action@v1.6.0
+        with:
+          dockerfile: noetic/Dockerfile
+          format: tty
+          failure-threshold: error # optional, default is info
+          # A space separated string of rules to ignore
+          ignore: # optional
+          # Path to a config file
+          config: # optional
 
       - name: Login to Movai Registry
         uses: docker/login-action@v1
