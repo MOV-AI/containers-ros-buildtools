@@ -37,7 +37,7 @@ jobs:
           context: .
           file: melodic/Dockerfile
           push: true
-          tags: registry.cloud.mov.ai/devops/ros-cpp-buildserver:melodic
+          tags: registry.cloud.mov.ai/devops/ros-cpp-buildtools:melodic
 
   DeployNoetic:
     # this job will only run if the PR has been merged
@@ -70,4 +70,4 @@ jobs:
           context: .
           file: noetic/Dockerfile
           push: true
-          tags: registry.cloud.mov.ai/devops/ros-cpp-buildserver:noetic
+          tags: registry.cloud.mov.ai/devops/ros-cpp-buildtools:noetic
