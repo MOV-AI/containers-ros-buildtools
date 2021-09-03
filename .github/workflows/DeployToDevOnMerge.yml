@@ -3,7 +3,7 @@ name: "Deploy - To Dev devops"
 on:
   push:
     branches:
-      - main
+      - main*
 
 jobs:
   DeployMelodic:
