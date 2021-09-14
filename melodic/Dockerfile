@@ -21,7 +21,8 @@ RUN mkdir /movai_projects && \
         python3-osrf-pycommon \
     && pip3 install --upgrade pip \
     && pip3 install \
-        awscli
+        awscli \
+    && pip install psutil
 RUN apt-get upgrade -y tar
 
 ### Environment config
