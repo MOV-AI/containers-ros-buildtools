@@ -5,7 +5,10 @@ RUN mkdir /movai_projects && \
     apt-get update && \
     apt-get install -y \
         cmake \
-        python-bloom \
+        python3-catkin-pkg \
+        python3-rospkg \
+        python3-rosdep \
+        python3-bloom \
         git \
         zip \
         unzip \
@@ -21,8 +24,7 @@ RUN mkdir /movai_projects && \
         python3-osrf-pycommon \
     && pip3 install --upgrade pip \
     && pip3 install \
-        awscli \
-    && pip install psutil
+        awscli 
 RUN apt-get upgrade -y tar
 
 ### Environment config
