@@ -1,0 +1,12 @@
+# List of folders to create as user
+USER_FOLDERS=(
+    ${ROS1_MOVAI_WS}
+    ${ROS2_MOVAI_WS}
+    ${ROS1_USER_WS}
+    ${ROS2_USER_WS}
+    ${MOVAI_USERSPACE}
+    ${MOVAI_HOME}/sdk
+)
+SYSTEM_FOLDERS=(
+    /usr/local/lib/movai-plugins
+)

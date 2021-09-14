@@ -23,12 +23,28 @@ RUN mkdir /movai_projects && \
     && pip3 install \
         awscli
 RUN apt-get upgrade -y tar
-RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | \
-    gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg && \
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | \ 
-    tee /etc/apt/sources.list.d/github-cli.list > /dev/null && \
-    apt update && \
-    apt install gh
+
+### Environment config
+ENV MOVAI_ENV="$MOVAI_BRANCH" \
+    MOVAI_USERSPACE="${MOVAI_HOME}/user" \
+    ROS_VERSION="${ROS_DISTRO}" \
+    ROS1_MOVAI_WS="${MOVAI_HOME}/workspaces/MOVAI_ROS1" \
+    ROS2_MOVAI_WS="${MOVAI_HOME}/workspaces/MOVAI_ROS2" \
+    ROS1_USER_WS="${MOVAI_HOME}/workspaces/USER_ROS1" \
+    ROS2_USER_WS="${MOVAI_HOME}/workspaces/USER_ROS2"
+
+# Specific tasks to do to the user homespace
+COPY scripts/user.rc /tmp/user.rc
+RUN /usr/local/bin/user-provision.sh
+
+# Copy runtime scripts
+COPY scripts/movai-packaging.bash /usr/local/lib/movai-packaging.bash
+COPY scripts/movai-plugins/ /usr/local/lib/movai-plugins/
+COPY scripts/backup.sh /usr/local/bin/backup.sh
+COPY scripts/ros1-workspace-build.sh /usr/local/bin/ros1-workspace-build.sh
+COPY scripts/ros1-workspace-package.sh /usr/local/bin/ros1-workspace-package.sh
+COPY scripts/provision.sh /usr/local/bin/provision.sh
+
 
 # Run everything as mov.ai user
 USER movai
