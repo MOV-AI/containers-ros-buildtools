@@ -16,6 +16,8 @@
 #
 # File: ros1-workspace-build.sh
 
+sudo apt-get update
+
 if type -t movai_install_rosinstall | grep -q "^function$"; then
     # If this function is not available means we are calling from shell and not from
     # provision
@@ -31,6 +33,7 @@ printf "Updating ROS1 Workspace:\n"
 cd ${ROS1_USER_WS} >/dev/null
 wstool update -t ${MOVAI_USERSPACE}/cache/ros/src
 rosdep update
+rosdep install --from-paths ${MOVAI_USERSPACE}/cache/ros/src --ignore-src --rosdistro ${ROS_DISTRO} -y
 
 if [ "$MOVAI_ENV" = "develop" ]; then
     CMAKE_ARGS='--cmake-args -DCMAKE_BUILD_TYPE=Debug'

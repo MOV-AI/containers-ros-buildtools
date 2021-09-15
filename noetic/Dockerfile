@@ -32,5 +32,10 @@ COPY $ROS_VERSION/packages/requirements.txt /tmp/requirements.txt
 # Install required packages
 RUN /usr/local/bin/install-packages.sh
 
+# Configure installations
+# config bloom templates
+COPY scripts/bloom-plugins/ /usr/lib/python3/dist-packages/bloom/generators/debian/templates/catkin/
+
+
 # Run everything as mov.ai user
 USER movai

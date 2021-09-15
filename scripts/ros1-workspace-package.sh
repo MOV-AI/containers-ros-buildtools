@@ -19,19 +19,26 @@
 MOVAI_PACKAGE_OS="${MOVAI_PACKAGE_OS:-ubuntu}"
 MOVAI_PACKAGE_OS_VERSION="$(lsb_release -cs)"
 MOVAI_PACKAGE_VERSION="${MOVAI_PACKAGE_VERSION:-0.0.0-dirty}"
-printf "before contact $MOVAI_PACKAGING_DIR"
-MOVAI_PACKAGING_DIR="$(find -L ${MOVAI_PACKAGING_DIR} -name debian)/.."
-printf "I AM GONNA CD TO $MOVAI_PACKAGING_DIR"
-cd "${MOVAI_PACKAGING_DIR}"
+MOVAI_PROJECT_DIR="$(dirname $(find -L ${MOVAI_PACKAGING_DIR} -name package.xml))"
+cd "${MOVAI_PROJECT_DIR}"
 
 bloom-generate rosdebian --os-name "${MOVAI_PACKAGE_OS}" \
 --os-version "${MOVAI_PACKAGE_OS_VERSION}" --ros-distro "${ROS_DISTRO}" .
+
+if [ -d "../movai_metadata/" ]
+then
+    printf "Component contains movai metadata. Incorporating it in deb.\n"
+else
+    printf "No movai metadata detected.\n"
+    rm -f ./debian/install
+    rm -f ./debian/postinst
+fi
 
 # update version
 dch -b -v "${MOVAI_PACKAGE_VERSION}" "Auto created package version: ${MOVAI_PACKAGE_VERSION}"
 
 # create .deb
-dpkg-buildpackage -nc -b -rfakeroot -us -uc -tc | tee "${MOVAI_PACKAGING_DIR}/dpkg-${MOVAI_PACKAGE_NAME}.log"
+dpkg-buildpackage -nc -b -rfakeroot -us -uc -tc | tee "${MOVAI_PROJECT_DIR}/dpkg-${MOVAI_PACKAGE_NAME}.log"
 cp ./../*.deb ./../build
 
 
