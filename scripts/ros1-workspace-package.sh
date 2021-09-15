@@ -19,9 +19,9 @@
 MOVAI_PACKAGE_OS="${MOVAI_PACKAGE_OS:-ubuntu}"
 MOVAI_PACKAGE_OS_VERSION="$(lsb_release -cs)"
 MOVAI_PACKAGE_VERSION="${MOVAI_PACKAGE_VERSION:-0.0.0-dirty}"
-
-MOVAI_PACKAGING_DIR="$(find ${MOVAI_PACKAGING_DIR} -name debian)/.."
-print "I AM GONNA CD TO $MOVAI_PACKAGING_DIR"
+printf "before contact $MOVAI_PACKAGING_DIR"
+MOVAI_PACKAGING_DIR="$(find -L ${MOVAI_PACKAGING_DIR} -name debian)/.."
+printf "I AM GONNA CD TO $MOVAI_PACKAGING_DIR"
 cd "${MOVAI_PACKAGING_DIR}"
 
 bloom-generate rosdebian --os-name "${MOVAI_PACKAGE_OS}" \
