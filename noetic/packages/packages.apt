@@ -1,0 +1,17 @@
+# Mov.ai ROS1 base packages
+cmake 
+git 
+zip 
+unzip 
+software-properties-common 
+nano 
+bash 
+openssh-client 
+ros-noetic-catkin 
+python3-catkin-tools 
+python3-osrf-pycommon 
+# packaging dependencies
+python3-bloom 
+debhelper 
+build-essential 
+devscripts 

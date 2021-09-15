@@ -2,26 +2,8 @@ FROM registry.cloud.mov.ai/devops/movai-base:noetic
 
 RUN mkdir /movai_projects && \
     export DEBIAN_FRONTEND=noninteractive && \
-    apt-get update && \
-    apt-get install -y \
-        cmake \
-        python3-bloom \
-        git \
-        zip \
-        unzip \
-        software-properties-common \
-        nano \
-        bash \
-        openssh-client \
-        debhelper \
-        build-essential \
-        devscripts \
-        ros-noetic-catkin \
-        python3-catkin-tools \
-        python3-osrf-pycommon \
-    && pip3 install --upgrade pip \
-    && pip3 install \
-        awscli
+    apt-get update
+
 RUN apt-get upgrade -y tar
 
 ### Environment config
@@ -44,7 +26,11 @@ COPY scripts/backup.sh /usr/local/bin/backup.sh
 COPY scripts/ros1-workspace-build.sh /usr/local/bin/ros1-workspace-build.sh
 COPY scripts/ros1-workspace-package.sh /usr/local/bin/ros1-workspace-package.sh
 COPY scripts/provision.sh /usr/local/bin/provision.sh
+COPY $ROS_VERSION/packages/packages.apt /tmp/packages.apt
+COPY $ROS_VERSION/packages/requirements.txt /tmp/requirements.txt
 
+# Install required packages
+RUN /usr/local/bin/install-packages.sh
 
 # Run everything as mov.ai user
 USER movai
