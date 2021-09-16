@@ -13,6 +13,7 @@ else
 fi
 
 IN_CONTAINER_ROS_SRC="/tmp/cache/ros/src"
+IN_CONTAINER_ROS_PACKAGES="/tmp/packages"
 
 mkdir -p ${IN_CONTAINER_ROS_SRC}
 # shadow clone to avoid workspace polution
@@ -21,7 +22,7 @@ cp -r $IN_CONTAINER_MOUNT_POINT ${IN_CONTAINER_ROS_SRC}
 # setup the paths through envs
 export MOVAI_USERSPACE=/tmp
 export MOVAI_PACKAGING_DIR=${IN_CONTAINER_ROS_SRC}
-export MOVAI_OUTPUT_DIR=${IN_CONTAINER_MOUNT_POINT}/build/
+export MOVAI_OUTPUT_DIR=${IN_CONTAINER_ROS_PACKAGES}
 
 /usr/local/bin/ros1-workspace-build.sh
 /usr/local/bin/ros1-workspace-package.sh

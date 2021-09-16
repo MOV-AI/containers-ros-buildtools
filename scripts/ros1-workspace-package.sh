@@ -45,7 +45,7 @@ function generate_package(){
 
     # create .deb
     dpkg-buildpackage -nc -b -rfakeroot -us -uc -tc | tee "${SUB_COMPONENT_DIR}/dpkg-${MOVAI_PACKAGE_NAME}.log"
-    
+
 }
 
 
@@ -55,16 +55,14 @@ for SUB_COMPONENT_PATH in $SUB_COMPONENTS; do # Not recommended, will break on w
     generate_package "$SUB_COMPONENT_PATH"
 done
 
-if [ ! -z "${MOVAI_OUTPUT_DIR}" ];
+if [ -n "${MOVAI_OUTPUT_DIR}" ];
 then
     if [ ! -d "${MOVAI_OUTPUT_DIR}" ];
     then
-        mkdir -p ${MOVAI_OUTPUT_DIR}
+        mkdir -p "${MOVAI_OUTPUT_DIR}"
     fi
     echo "Copying debs to ${MOVAI_OUTPUT_DIR}"
-    find ${MOVAI_PACKAGING_DIR} -type f -name '*.deb' | 
-    while read GEN_DEB; do cp "$GEN_DEB" "${MOVAI_OUTPUT_DIR}"; done
-
+    find "${MOVAI_PACKAGING_DIR}" -type f -name '*.deb' -exec cp {} "${MOVAI_OUTPUT_DIR}" \;
 fi
 
 # -a ${props.packageArch}
