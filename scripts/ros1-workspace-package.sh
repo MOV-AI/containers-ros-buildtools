@@ -57,6 +57,10 @@ done
 
 if [ ! -z "${MOVAI_OUTPUT_DIR}" ];
 then
+    if [ ! -d "${MOVAI_OUTPUT_DIR}" ];
+    then
+        mkdir -p ${MOVAI_OUTPUT_DIR}
+    fi
     echo "Copying debs to ${MOVAI_OUTPUT_DIR}"
     find ${MOVAI_PACKAGING_DIR} -type f -name '*.deb' | 
     while read GEN_DEB; do cp "$GEN_DEB" "${MOVAI_OUTPUT_DIR}"; done
