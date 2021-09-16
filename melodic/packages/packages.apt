@@ -1,0 +1,21 @@
+# Mov.ai ROS1 base packages
+python3-dev
+python3-scipy
+python-wstool
+python-catkin-tools
+libopencv-dev
+python-opencv
+python3-opencv
+python-dev
+libbullet-dev
+libspatialindex-dev
+# Alternate librealsense2 build requirements
+dh-autoreconf
+libudev-dev
+libusb-1.0-0-dev
+# packaging dependencies
+debhelper
+build-essential
+python-bloom
+devscripts
+fakeroot

@@ -1,0 +1,6 @@
+rospkg==1.2.8
+empy==3.3.4
+catkin_pkg==0.4.22
+opencv-python==4.2.0.32
+Rtree==0.9.4
+dubins==1.0.1
