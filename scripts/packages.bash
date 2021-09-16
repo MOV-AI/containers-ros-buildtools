@@ -10,7 +10,7 @@ SUDO_COMMANDS=(
 # Setup available sudo commands for user movai
 [ -f /etc/sudoers.d/movai ] || touch /etc/sudoers.d/movai
 
-for SUDO_COMMAND in "${SUDO_COMMANDS[@]}"; do
+for SUDO_COMMAND in ${SUDO_COMMANDS[@]}; do
     echo "%sudo ALL=(ALL) NOPASSWD:SETENV: ${SUDO_COMMAND}" >> /etc/sudoers.d/movai
 done
 

@@ -38,9 +38,7 @@ if [ ! -d src ]; then
     wstool init src
 fi
 
-if [ "$MOVAI_ENV" = "develop" ]; then
-    CMAKE_ARGS='--cmake-args -DCMAKE_BUILD_TYPE=Debug'
-else
+if [ -z "$CMAKE_ARGS" ]; then
     CMAKE_ARGS='--cmake-args -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS_RELEASE=-s -DCMAKE_CXX_FLAGS_RELEASE=-s'
 fi
 
@@ -51,13 +49,13 @@ printf "Configuring Mov.ai ROS1 Workspace with args:\n"
 printf "\t env: %s\n" "${MOVAI_ENV}"
 printf "\t cmake: %s\n" "${CMAKE_ARGS}"
 wstool update -t src
-catkin config\
-    --extend /opt/ros/${ROS_DISTRO} --install --merge-install\
-    --source-space /tmp/cache/src\
-    --devel-space /tmp/cache/devel\
-    --log-space /tmp/cache/logs\
-    --build-space /tmp/cache/build\
-    --install-space /opt/mov.ai/workspaces/MOVAI_ROS1\
+catkin config \
+    --extend /opt/ros/${ROS_DISTRO} --install --merge-install \
+    --source-space /tmp/cache/src \
+    --devel-space /tmp/cache/devel \
+    --log-space /tmp/cache/logs \
+    --build-space /tmp/cache/build \
+    --install-space /opt/mov.ai/workspaces/MOVAI_ROS1 \
     ${CMAKE_ARGS}
 
 printf "Building Mov.ai ROS1 Workspace with args:\n"

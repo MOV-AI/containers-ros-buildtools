@@ -1,9 +1,17 @@
-FROM registry.cloud.mov.ai/devops/movai-base:melodic
+ARG DOCKER_REGISTRY="registry.cloud.mov.ai"
+ARG DOCKER_TAG=""
+FROM ${DOCKER_REGISTRY}/devops/movai-base:melodic
 
-RUN mkdir /movai_projects && \
-    export DEBIAN_FRONTEND=noninteractive && \
-    apt-get update 
-RUN apt-get upgrade -y tar
+# Arguments
+ARG MOVAI_ENV="develop"
+ARG MOVAI_BRANCH="develop"
+ARG MOVAI_PPA="testing"
+
+# Labels
+LABEL description="MOV.AI Buildtools Image"
+LABEL maintainer="devops@mov.ai"
+LABEL movai="buildtools"
+LABEL environment="$MOVAI_ENV"
 
 ### Environment config
 ENV MOVAI_ENV="$MOVAI_BRANCH" \
