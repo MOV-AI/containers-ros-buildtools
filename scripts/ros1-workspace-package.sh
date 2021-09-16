@@ -19,28 +19,49 @@
 MOVAI_PACKAGE_OS="${MOVAI_PACKAGE_OS:-ubuntu}"
 MOVAI_PACKAGE_OS_VERSION="$(lsb_release -cs)"
 MOVAI_PACKAGE_VERSION="${MOVAI_PACKAGE_VERSION:-0.0.0-dirty}"
-MOVAI_PROJECT_DIR="$(dirname $(find -L ${MOVAI_PACKAGING_DIR} -name package.xml))"
-cd "${MOVAI_PROJECT_DIR}"
 
-bloom-generate rosdebian --os-name "${MOVAI_PACKAGE_OS}" \
---os-version "${MOVAI_PACKAGE_OS_VERSION}" --ros-distro "${ROS_DISTRO}" .
+# function to generate the deb of a ros component in a given path
+function generate_package(){
 
-if [ -d "../movai_metadata/" ]
+    SUB_COMPONENT_DIR=$1
+    printf "Packaging ros project in $SUB_COMPONENT_DIR.\n"
+
+    cd "${SUB_COMPONENT_DIR}"
+
+    bloom-generate rosdebian --os-name "${MOVAI_PACKAGE_OS}" \
+    --os-version "${MOVAI_PACKAGE_OS_VERSION}" --ros-distro "${ROS_DISTRO}" .
+
+    if [ -d "../movai_metadata/" ]
+    then
+        printf "Component contains movai metadata. Incorporating it in deb.\n"
+    else
+        printf "No movai metadata detected.\n"
+        rm -f ./debian/install
+        rm -f ./debian/postinst
+    fi
+
+    # update version
+    dch -b -v "${MOVAI_PACKAGE_VERSION}" "Auto created package version: ${MOVAI_PACKAGE_VERSION}"
+
+    # create .deb
+    dpkg-buildpackage -nc -b -rfakeroot -us -uc -tc | tee "${SUB_COMPONENT_DIR}/dpkg-${MOVAI_PACKAGE_NAME}.log"
+    
+}
+
+
+SUB_COMPONENTS="$(dirname $(find -L ${MOVAI_PACKAGING_DIR} -name package.xml))"
+
+for SUB_COMPONENT_PATH in $SUB_COMPONENTS; do # Not recommended, will break on whitespace
+    generate_package "$SUB_COMPONENT_PATH"
+done
+
+if [ ! -z "${MOVAI_OUTPUT_DIR}" ];
 then
-    printf "Component contains movai metadata. Incorporating it in deb.\n"
-else
-    printf "No movai metadata detected.\n"
-    rm -f ./debian/install
-    rm -f ./debian/postinst
+    echo "Copying debs to ${MOVAI_OUTPUT_DIR}"
+    find ${MOVAI_PACKAGING_DIR} -type f -name '*.deb' | 
+    while read GEN_DEB; do cp "$GEN_DEB" "${MOVAI_OUTPUT_DIR}"; done
+
 fi
-
-# update version
-dch -b -v "${MOVAI_PACKAGE_VERSION}" "Auto created package version: ${MOVAI_PACKAGE_VERSION}"
-
-# create .deb
-dpkg-buildpackage -nc -b -rfakeroot -us -uc -tc | tee "${MOVAI_PROJECT_DIR}/dpkg-${MOVAI_PACKAGE_NAME}.log"
-cp ./../*.deb ./../build
-
 
 # -a ${props.packageArch}
 # export GPG_TTY=$(tty)
