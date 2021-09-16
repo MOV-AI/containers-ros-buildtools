@@ -24,6 +24,7 @@ COPY scripts/movai-plugins/ /usr/local/lib/movai-plugins/
 COPY scripts/backup.sh /usr/local/bin/backup.sh
 COPY scripts/ros1-workspace-build.sh /usr/local/bin/ros1-workspace-build.sh
 COPY scripts/ros1-workspace-package.sh /usr/local/bin/ros1-workspace-package.sh
+COPY scripts/ros1-workspace-build-and-package.sh /usr/local/bin/ros1-workspace-build-and-package.sh
 COPY scripts/provision.sh /usr/local/bin/provision.sh
 COPY $ROS_VERSION/packages/packages.apt /tmp/packages.apt
 COPY $ROS_VERSION/packages/requirements.txt /tmp/requirements.txt
