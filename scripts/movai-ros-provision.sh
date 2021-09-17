@@ -29,7 +29,7 @@ PACKAGE=/tmp/movai.rosinstall
 printf "Preparing Mov.ai ROS1 packages\n"
 wstool merge -t /tmp/cache/src ${PACKAGE}
 wstool update -t /tmp/cache/src
-rosdep install -y --from-paths /tmp/cache/src --ignore-src --rosdistro ${ROS_DISTRO}
+rosdep install -y --from-paths /tmp/cache/src --ignore-src --rosdistro ${ROS_DISTRO} -r
 rm --preserve-root ${PACKAGE}
 
 pushd /opt/mov.ai/workspaces/MOVAI_ROS1 >/dev/null
