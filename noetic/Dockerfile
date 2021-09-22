@@ -26,9 +26,13 @@ COPY scripts/backup.sh /usr/local/bin/backup.sh
 COPY scripts/ros1-workspace-build.sh /usr/local/bin/ros1-workspace-build.sh
 COPY scripts/ros1-workspace-package.sh /usr/local/bin/ros1-workspace-package.sh
 COPY scripts/ros1-workspace-build-and-package.sh /usr/local/bin/ros1-workspace-build-and-package.sh
+COPY scripts/packages.bash /usr/local/bin/packages.bash
 COPY scripts/provision.sh /usr/local/bin/provision.sh
 COPY $ROS_VERSION/packages/packages.apt /tmp/packages.apt
 COPY $ROS_VERSION/packages/requirements.txt /tmp/requirements.txt
+
+USER root
+RUN /usr/local/bin/packages.bash
 
 # Install required packages
 RUN /usr/local/bin/install-packages.sh
