@@ -43,7 +43,7 @@ function local_publish(){
 
     
     # have rosdep sources use ros-pkgs.yaml
-    bash enable-custom-rosdep.sh
+    bash enable-custom-rosdep.sh "LOCAL"
 
     #ros package name from deb name
     ros_pkg_name=$(echo "$pkg_name" | sed -e 's/ros-\w*-'//g)
