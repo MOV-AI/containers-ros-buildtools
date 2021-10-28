@@ -3,7 +3,7 @@ FROM registry.cloud.mov.ai/devops/movai-base:melodic
 RUN mkdir /movai_projects && \
     export DEBIAN_FRONTEND=noninteractive && \
     apt-get update 
-RUN apt-get upgrade -y tar
+RUN apt-get upgrade -y tar 
 
 ### Environment config
 ENV MOVAI_ENV="$MOVAI_BRANCH" \
@@ -27,12 +27,24 @@ COPY scripts/ros1-workspace-package.sh /usr/local/bin/ros1-workspace-package.sh
 COPY scripts/ros1-workspace-build-and-package.sh /usr/local/bin/ros1-workspace-build-and-package.sh
 COPY scripts/packages.bash /usr/local/bin/packages.bash
 COPY scripts/provision.sh /usr/local/bin/provision.sh
+COPY scripts/create-local-apt-registry.sh /usr/local/bin/create-local-apt-registry.sh
+COPY scripts/rosdep-translation-setup.sh /usr/local/bin/rosdep-translation-setup.sh
+COPY scripts/enable-custom-rosdep.sh /usr/local/bin/enable-custom-rosdep.sh
 COPY $ROS_VERSION/packages/packages.apt /tmp/packages.apt
 COPY $ROS_VERSION/packages/requirements.txt /tmp/requirements.txt
+COPY scripts/setup-pypi-env.bash /usr/local/bin/setup-pypi-env.bash
+COPY resources/ /usr/local/share/pypi-confs/resources
+
+RUN setup-pypi-env.bash DEV 
+RUN /usr/local/bin/enable-custom-rosdep.sh DEV 
+
 
 USER root
-RUN /usr/local/bin/packages.bash
 
+RUN /usr/local/bin/packages.bash && \
+    /usr/local/bin/create-local-apt-registry.sh && \
+    /usr/local/bin/rosdep-translation-setup.sh
+    
 # Install required packages
 RUN /usr/local/bin/install-packages.sh
 
