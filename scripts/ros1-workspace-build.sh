@@ -35,9 +35,7 @@ wstool update -t ${MOVAI_USERSPACE}/cache/ros/src
 rosdep update
 rosdep install --from-paths ${MOVAI_USERSPACE}/cache/ros/src --ignore-src --rosdistro ${ROS_DISTRO} -y
 
-if [ "$MOVAI_ENV" = "develop" ]; then
-    CMAKE_ARGS='--cmake-args -DCMAKE_BUILD_TYPE=Debug'
-else
+if [ -z "$CMAKE_ARGS" ]; then
     CMAKE_ARGS='--cmake-args -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS_RELEASE=-s -DCMAKE_CXX_FLAGS_RELEASE=-s'
 fi
 
@@ -47,13 +45,14 @@ BUILD_ARGS="${BUILD_LIMITS} -DPYTHON_VERSION=${PYTHON_VERSION:-3.6}"
 printf "Configuring ROS1 Workspace with args:\n"
 printf "\t env: %s\n" "${MOVAI_ENV}"
 printf "\t cmake: %s\n" "${CMAKE_ARGS}"
+
 catkin config\
-    --extend /opt/ros/${ROS_DISTRO} --install --merge-install\
-    --source-space ${MOVAI_USERSPACE}/cache/ros/src\
-    --devel-space ${MOVAI_USERSPACE}/cache/ros/devel\
-    --log-space ${MOVAI_USERSPACE}/cache/ros/logs\
-    --build-space ${MOVAI_USERSPACE}/cache/ros/build\
-    --install-space ${ROS1_USER_WS}\
+    --extend /opt/ros/${ROS_DISTRO} --install --merge-install \
+    --source-space ${MOVAI_USERSPACE}/cache/ros/src \
+    --devel-space ${MOVAI_USERSPACE}/cache/ros/devel \
+    --log-space ${MOVAI_USERSPACE}/cache/ros/logs \
+    --build-space ${MOVAI_USERSPACE}/cache/ros/build \
+    --install-space ${ROS1_USER_WS} \
     ${CMAKE_ARGS}
 
 # Build User Workspace

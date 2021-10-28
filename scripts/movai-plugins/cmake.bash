@@ -22,6 +22,7 @@ function pkg_install () {
     local PACKAGE_SOURCE="${PACKAGE_CONF_package__source}"
     local PACKAGE_WORKFOLDER="${PACKAGE_CONF_package__workfolder}"
     local PACKAGE_BUILD_ARGUMENTS="${PACKAGE_CONF_package__build_arguments}"
+    local PACKAGE_CMAKE_ARGUMENTS="${PACKAGE_CONF_package__cmake_arguments}"
     local PACKAGE_INSTALL_ARGUMENTS="${PACKAGE_CONF_package__install_arguments}"
     local PACKAGE_PRE_FETCH="${PACKAGE_CONF_package__pre_fetch_command}"
     local PACKAGE_POST_FETCH="${PACKAGE_CONF_package__post_fetch_command}"
@@ -49,7 +50,7 @@ function pkg_install () {
     fi
     mkdir -p build
     pushd build >/dev/null
-    cmake ..
+    cmake .. ${PACKAGE_CMAKE_ARGUMENTS}
     make ${PACKAGE_BUILD_ARGUMENTS}
     popd >/dev/null
     eval "${PACKAGE_POST_BUILD}"

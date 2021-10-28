@@ -1,15 +1,23 @@
-FROM registry.cloud.mov.ai/devops/movai-base:noetic
+ARG DOCKER_REGISTRY="registry.cloud.mov.ai"
+ARG DOCKER_TAG=""
+FROM ${DOCKER_REGISTRY}/devops/movai-base:noetic
 
-RUN mkdir /movai_projects && \
-    export DEBIAN_FRONTEND=noninteractive && \
-    apt-get update
+# Arguments
+ARG MOVAI_ENV="develop"
+ARG MOVAI_BRANCH="develop"
+ARG MOVAI_PPA="testing"
 
-RUN apt-get upgrade -y tar
+# Labels
+LABEL description="MOV.AI ROS Buildtools Image"
+LABEL maintainer="devops@mov.ai"
+LABEL movai="spawner"
+LABEL environment="$MOVAI_ENV"
 
 ### Environment config
 ENV MOVAI_ENV="$MOVAI_BRANCH" \
     MOVAI_USERSPACE="${MOVAI_HOME}/user" \
     ROS_VERSION="${ROS_DISTRO}" \
+    PYTHON_VERSION=3.8 \
     ROS1_MOVAI_WS="${MOVAI_HOME}/workspaces/MOVAI_ROS1" \
     ROS2_MOVAI_WS="${MOVAI_HOME}/workspaces/MOVAI_ROS2" \
     ROS1_USER_WS="${MOVAI_HOME}/workspaces/USER_ROS1" \

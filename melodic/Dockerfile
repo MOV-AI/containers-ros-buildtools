@@ -1,4 +1,17 @@
-FROM registry.cloud.mov.ai/devops/movai-base:melodic
+ARG DOCKER_REGISTRY="registry.cloud.mov.ai"
+ARG DOCKER_TAG=""
+# Arguments
+ARG MOVAI_ENV="develop"
+ARG MOVAI_BRANCH="develop"
+ARG MOVAI_PPA="testing"
+
+# Labels
+LABEL description="MOV.AI Buildtools Image"
+LABEL maintainer="devops@mov.ai"
+LABEL movai="buildtools"
+LABEL environment="$MOVAI_ENV"
+
+FROM ${DOCKER_REGISTRY}/devops/movai-base:melodic
 
 RUN mkdir /movai_projects && \
     export DEBIAN_FRONTEND=noninteractive && \
@@ -9,6 +22,7 @@ RUN apt-get upgrade -y tar
 ENV MOVAI_ENV="$MOVAI_BRANCH" \
     MOVAI_USERSPACE="${MOVAI_HOME}/user" \
     ROS_VERSION="${ROS_DISTRO}" \
+    PYTHON_VERSION=3.6 \
     ROS1_MOVAI_WS="${MOVAI_HOME}/workspaces/MOVAI_ROS1" \
     ROS2_MOVAI_WS="${MOVAI_HOME}/workspaces/MOVAI_ROS2" \
     ROS1_USER_WS="${MOVAI_HOME}/workspaces/USER_ROS1" \

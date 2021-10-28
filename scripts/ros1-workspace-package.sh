@@ -199,6 +199,8 @@ function raise_build_version(){
 
     MOVAI_PACKAGE_VERSION="$(echo "$version_section" | sed 's/ //g' | sed -e 's/<\w*>'//g | sed -e 's/<\/\w*>'//g)-$raisedbuildid"
 
+
+
 }
 
 if [ $MOVAI_PACKAGE_RAISE_TYPE == "CI" ]
@@ -213,7 +215,6 @@ SUB_COMPONENTS="$(dirname $(find -L ${MOVAI_PACKAGING_DIR} -name package.xml) | 
 for SUB_COMPONENT_PATH in $SUB_COMPONENTS; do
     generate_package "$SUB_COMPONENT_PATH"
 done
-
 
 max_attempts=5
 for (( i=1; i<=$max_attempts; i++ ))
@@ -244,14 +245,14 @@ printf "Generated packages: $obtained_pkgs of $expected_pkgs\n"
 printf "============================================\n"
 
 #copy to output dir if needed
-if [ ! -z "${MOVAI_OUTPUT_DIR}" ];
+if [ -n "${MOVAI_OUTPUT_DIR}" ];
 then
     if [ ! -d "${MOVAI_OUTPUT_DIR}" ];
     then
-        mkdir -p ${MOVAI_OUTPUT_DIR}
+        mkdir -p "${MOVAI_OUTPUT_DIR}"
     fi
     echo "Copying debs to ${MOVAI_OUTPUT_DIR}"
-    find ${MOVAI_PACKAGING_DIR} -L -type f -name '*.deb' | 
-    while read GEN_DEB; do cp "$GEN_DEB" "${MOVAI_OUTPUT_DIR}"; done
+
+    find "${MOVAI_PACKAGING_DIR}" -type f -name '*.deb' -exec cp {} "${MOVAI_OUTPUT_DIR}" \;
 
 fi
