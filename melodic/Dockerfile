@@ -1,5 +1,6 @@
 ARG DOCKER_REGISTRY="registry.cloud.mov.ai"
 ARG DOCKER_TAG=""
+FROM ${DOCKER_REGISTRY}/devops/movai-base:melodic
 # Arguments
 ARG MOVAI_ENV="develop"
 ARG MOVAI_BRANCH="develop"
