@@ -8,9 +8,9 @@ ARG MOVAI_BRANCH="develop"
 ARG MOVAI_PPA="testing"
 
 # Labels
-LABEL description="MOV.AI ROS Buildtools Image"
+LABEL description="MOV.AI Buildtools Image"
 LABEL maintainer="devops@mov.ai"
-LABEL movai="spawner"
+LABEL movai="buildtools"
 LABEL environment="$MOVAI_ENV"
 
 ### Environment config
@@ -50,7 +50,6 @@ RUN /usr/local/bin/enable-custom-rosdep.sh DEV
 
 USER root
 
-RUN /usr/local/bin/packages.bash
 RUN /usr/local/bin/packages.bash && \
     /usr/local/bin/create-local-apt-registry.sh && \
     /usr/local/bin/rosdep-translation-setup.sh

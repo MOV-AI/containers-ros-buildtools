@@ -12,13 +12,6 @@ LABEL maintainer="devops@mov.ai"
 LABEL movai="buildtools"
 LABEL environment="$MOVAI_ENV"
 
-FROM ${DOCKER_REGISTRY}/devops/movai-base:melodic
-
-RUN mkdir /movai_projects && \
-    export DEBIAN_FRONTEND=noninteractive && \
-    apt-get update 
-RUN apt-get upgrade -y tar 
-
 ### Environment config
 ENV MOVAI_ENV="$MOVAI_BRANCH" \
     MOVAI_USERSPACE="${MOVAI_HOME}/user" \
