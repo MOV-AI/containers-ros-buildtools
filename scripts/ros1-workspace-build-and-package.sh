@@ -1,3 +1,5 @@
+#!/bin/bash
+
 set -e
 
 if [ -z "${IN_CONTAINER_MOUNT_POINT}" ];

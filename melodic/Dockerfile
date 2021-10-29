@@ -1,7 +1,6 @@
 ARG DOCKER_REGISTRY="registry.cloud.mov.ai"
 ARG DOCKER_TAG=""
 FROM ${DOCKER_REGISTRY}/devops/movai-base:melodic
-
 # Arguments
 ARG MOVAI_ENV="develop"
 ARG MOVAI_BRANCH="develop"
@@ -34,10 +33,26 @@ COPY scripts/backup.sh /usr/local/bin/backup.sh
 COPY scripts/ros1-workspace-build.sh /usr/local/bin/ros1-workspace-build.sh
 COPY scripts/ros1-workspace-package.sh /usr/local/bin/ros1-workspace-package.sh
 COPY scripts/ros1-workspace-build-and-package.sh /usr/local/bin/ros1-workspace-build-and-package.sh
+COPY scripts/packages.bash /usr/local/bin/packages.bash
 COPY scripts/provision.sh /usr/local/bin/provision.sh
+COPY scripts/create-local-apt-registry.sh /usr/local/bin/create-local-apt-registry.sh
+COPY scripts/rosdep-translation-setup.sh /usr/local/bin/rosdep-translation-setup.sh
+COPY scripts/enable-custom-rosdep.sh /usr/local/bin/enable-custom-rosdep.sh
 COPY $ROS_VERSION/packages/packages.apt /tmp/packages.apt
 COPY $ROS_VERSION/packages/requirements.txt /tmp/requirements.txt
+COPY scripts/setup-pypi-env.bash /usr/local/bin/setup-pypi-env.bash
+COPY resources/ /usr/local/share/pypi-confs/resources
 
+RUN setup-pypi-env.bash DEV 
+RUN /usr/local/bin/enable-custom-rosdep.sh DEV 
+
+
+USER root
+
+RUN /usr/local/bin/packages.bash && \
+    /usr/local/bin/create-local-apt-registry.sh && \
+    /usr/local/bin/rosdep-translation-setup.sh
+    
 # Install required packages
 RUN /usr/local/bin/install-packages.sh
 

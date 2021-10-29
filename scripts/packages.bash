@@ -1,10 +1,8 @@
 # Add user to sudoers
 
 SUDO_COMMANDS=(
-    ${APP_PATH}/async_movaicore.py
     /usr/bin/dpkg
     /usr/bin/make
-    /usr/bin/bluetoothctl
 )
 
 # Setup available sudo commands for user movai
