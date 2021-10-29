@@ -116,8 +116,8 @@ function generate_package(){
 
         pkg_name="$(dpkg-parsechangelog -S Source)"
         pkg_log_TMP_FILE="/tmp/$pkg_name-build.log"
-
-        dpkg-buildpackage -nc -b -rfakeroot -us -uc -tc  2> $pkg_log_TMP_FILE
+    #--target-arch all
+        dpkg-buildpackage -nc -b -rfakeroot -us -uc -tc 2> $pkg_log_TMP_FILE
 
         deb_found=$(find ../ -name "${pkg_name}*.deb") 
         if [ ! "$deb_found" ]
