@@ -123,11 +123,12 @@ function generate_package(){
 
         pkg_name="$(dpkg-parsechangelog -S Source)"
         pkg_log_TMP_FILE="/tmp/$pkg_name-build.log"
-    #--target-arch all
-        dpkg-buildpackage -nc -b -rfakeroot -us -uc -tc 2> $pkg_log_TMP_FILE
 
+        # overwrite control auto discovery of architecture to "all".
         overwrite_control_architecture
-        
+
+        dpkg-buildpackage -nc -b -rfakeroot -us -uc -tc 2> $pkg_log_TMP_FILEs
+
         deb_found=$(find ../ -name "${pkg_name}*.deb") 
         if [ ! "$deb_found" ]
         then
