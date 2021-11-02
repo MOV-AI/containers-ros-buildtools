@@ -90,6 +90,13 @@ function is_ros_metapackage(){
     
 }
 
+function overwrite_control_architecture(){
+    anchor=$(cat debian/control | grep Architecture)
+    desired_arch="Architecture: all"
+    sed -i "s/$anchor/$desired_arch/g" debian/control
+
+}
+
 # function to generate the deb of a ros component in a given path
 function generate_package(){
 
@@ -119,6 +126,8 @@ function generate_package(){
     #--target-arch all
         dpkg-buildpackage -nc -b -rfakeroot -us -uc -tc 2> $pkg_log_TMP_FILE
 
+        overwrite_control_architecture
+        
         deb_found=$(find ../ -name "${pkg_name}*.deb") 
         if [ ! "$deb_found" ]
         then
