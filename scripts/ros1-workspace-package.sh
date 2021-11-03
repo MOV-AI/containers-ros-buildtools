@@ -91,8 +91,14 @@ function is_ros_metapackage(){
 }
 
 function overwrite_control_architecture(){
-    anchor=$(cat debian/control | grep Architecture)
     desired_arch="Architecture: all"
+
+    anchor=$(cat debian/control | grep Architecture)
+
+    if [ -z "$anchor" ]; then
+        echo "$desired_arch" >>debian/controll
+    fi
+    
     sed -i "s/$anchor/$desired_arch/g" debian/control
 
 }
