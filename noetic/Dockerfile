@@ -64,3 +64,5 @@ COPY scripts/bloom-plugins/ /usr/lib/python3/dist-packages/bloom/generators/debi
 
 # Run everything as mov.ai user
 USER movai
+
+RUN mkdir -p /opt/mov.ai/user/cache/ros/build /opt/mov.ai/user/cache/ros/devel /opt/mov.ai/user/cache/ros/logs 

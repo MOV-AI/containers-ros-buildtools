@@ -133,7 +133,7 @@ function generate_package(){
         # overwrite control auto discovery of architecture to "all".
         overwrite_control_architecture
 
-        dpkg-buildpackage -nc -b -rfakeroot -us -uc -tc 2> $pkg_log_TMP_FILEs
+        dpkg-buildpackage -nc -b -rfakeroot -us -uc -tc 2> $pkg_log_TMP_FILE
 
         deb_found=$(find ../ -name "${pkg_name}*.deb") 
         if [ ! "$deb_found" ]
