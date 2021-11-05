@@ -72,9 +72,16 @@ function boostrap_debian_metadata_ros_pkg(){
 
     if [ -d "../movai_metadata/" ]
     then
-        printf "Component contains movai metadata. Incorporating it in deb.\n"
+        echo -e "\e[31mStill using movai_metadata folder which is no longer acceptable. Please change to metadata.\033[0m"
+        set -e 
+        exit 2
+    fi
+
+    if [ -d "../metadata/" ]
+    then
+        echo -e "\033[0;33mComponent contains movai metadata. Incorporating it in deb.\033[0m"
     else
-        printf "No movai metadata detected.\n"
+        echo -e "\033[0;33mNo movai metadata detected.\033[0m"
         rm -f ./debian/install
         rm -f ./debian/postinst
     fi
@@ -139,7 +146,7 @@ function generate_package(){
         if [ ! "$deb_found" ]
         then
             # print failure
-            printf "Failed during packaging :\n"
+            echo -e "\e[31mFailed during packaging :\033[0m"
             cat $pkg_log_TMP_FILE
             set -e 
             exit 1
@@ -156,9 +163,10 @@ function generate_package(){
             printf "Failure: $reason_identified. \n Postponing packaging for possible dependencies to be generated.\n"
             FAILED_DEB_BUILDS+=("$SUB_COMPONENT_DIR")
         else
-            printf "Failed during instantiation of meta data before packaging :\n"
+            echo -e "\e[31mFailed during instantiation of meta data before packaging :"          
             reason_identified=$(cat $STDERR_TMP_FILE)
-            printf "$reason_identified.\n"
+
+            echo -e "\e[31m$reason_identified.\033[0m"
             set -e
             exit 2
         fi
@@ -195,6 +203,13 @@ function boostrap_build_version_ros_package_xml(){
 function raise_build_version(){
     main_package="$(find -L ${MOVAI_PACKAGING_DIR} -name package.xml | awk '{ print length, $0 }' | sort -n | cut -d" " -f2- | head -n 1)"
 
+    if [ -z "$main_package" ]
+    then
+        echo -e "\e[31mNo package.xml found in this workspace. Please specify a valid workspace!\033[0m"
+        set -e 
+        exit 3
+    fi
+
     build_version_section=$(cat $main_package | grep build_version)
     version_section=$(cat $main_package | grep "<version")
 
@@ -222,7 +237,7 @@ function raise_build_version(){
 if [ $MOVAI_PACKAGE_RAISE_TYPE == "CI" ]
 then
     raise_build_version
-    echo "Raised version to $MOVAI_PACKAGE_VERSION"
+    echo -e "\033[0;36mRaised version to \033[1;36m$MOVAI_PACKAGE_VERSION\033[0m"
 fi
 
 
@@ -255,10 +270,10 @@ done
 expected_pkgs=$(find  ${MOVAI_PACKAGING_DIR} -name package.xml | wc -l)
 obtained_pkgs=$(find  ${MOVAI_PACKAGING_DIR} -name "*.deb" | wc -l)
 
-printf "============================================\n"
-printf "ROS-WORKSPACE-PACKAGE SCRIPT SUMMARY:\n"
-printf "Generated packages: $obtained_pkgs of $expected_pkgs\n"
-printf "============================================\n"
+echo -e "\033[1;35m============================================\033[0m"
+echo -e "\033[0;36mROS-WORKSPACE-PACKAGE SCRIPT SUMMARY:"
+echo -e "\033[0;36mGenerated packages: \033[1;33m$obtained_pkgs \033[0;36mof \033[1;32m$expected_pkgs"
+echo -e "\033[1;35m============================================\033[0m"
 
 #copy to output dir if needed
 if [ -n "${MOVAI_OUTPUT_DIR}" ];
