@@ -1,2 +1,2 @@
-../movai_metadata/ /usr/share/@(Package)
-../manifest.txt /usr/share/@(Package)
+../metadata/ /opt/ros/melodic/share/@(Package)
+../manifest.txt /opt/ros/melodic/share/@(Package)
