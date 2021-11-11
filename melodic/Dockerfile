@@ -56,7 +56,10 @@ RUN add-apt-repository ppa:git-core/ppa -y && \
     apt-get install git -y && \
     /usr/local/bin/packages.bash && \
     /usr/local/bin/create-local-apt-registry.sh && \
-    /usr/local/bin/rosdep-translation-setup.sh
+    /usr/local/bin/rosdep-translation-setup.sh && \
+    mkdir /__w  && \
+    chmod 777 /__w
+
     
 # Install required packages
 RUN /usr/local/bin/install-packages.sh
@@ -65,7 +68,10 @@ RUN /usr/local/bin/install-packages.sh
 # config bloom templates
 COPY scripts/bloom-plugins/ /usr/lib/python2.7/dist-packages/bloom/generators/debian/templates/catkin/
 
+
+
 # Run everything as mov.ai user
 USER movai
 
 RUN mkdir -p /opt/mov.ai/user/cache/ros/build /opt/mov.ai/user/cache/ros/devel /opt/mov.ai/user/cache/ros/logs 
+
