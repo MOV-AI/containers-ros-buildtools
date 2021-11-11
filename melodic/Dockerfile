@@ -12,6 +12,7 @@ LABEL maintainer="devops@mov.ai"
 LABEL movai="buildtools"
 LABEL environment="$MOVAI_ENV"
 
+
 ### Environment config
 ENV MOVAI_ENV="$MOVAI_BRANCH" \
     MOVAI_USERSPACE="${MOVAI_HOME}/user" \
@@ -49,7 +50,11 @@ RUN /usr/local/bin/enable-custom-rosdep.sh DEV
 
 USER root
 
-RUN /usr/local/bin/packages.bash && \
+RUN add-apt-repository ppa:git-core/ppa -y && \
+    apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install git -y && \
+    /usr/local/bin/packages.bash && \
     /usr/local/bin/create-local-apt-registry.sh && \
     /usr/local/bin/rosdep-translation-setup.sh
     
