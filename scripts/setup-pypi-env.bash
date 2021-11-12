@@ -24,7 +24,7 @@ if  [ $env == "INT" ]; then
   exit 0
 fi
 
-if  [ $env == "prod" ]; then
+if  [ $env == "PROD" ]; then
   cp $PROD_PIP_CONF $TARGET_PIP_CONF
   exit 0
 fi
