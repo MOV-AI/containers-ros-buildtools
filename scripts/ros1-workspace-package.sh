@@ -38,7 +38,7 @@ MOVAI_PACKAGE_OS_VERSION="$(lsb_release -cs)"
 function local_publish(){
     pkg_name=$1
 
-    find ../ -name "${pkg_name}*.deb" |
+    find -L ../ -name "${pkg_name}*.deb" |
     while read GEN_DEB; do cp "$GEN_DEB" "${LOCAL_REGISTRY}"; done
 
     
@@ -118,7 +118,7 @@ function generate_package(){
     printf "Packaging ros project in $SUB_COMPONENT_DIR.\n"
 
     cd "${SUB_COMPONENT_DIR}"
-
+    
     result=$(echo n | bloom-generate rosdebian --os-name "${MOVAI_PACKAGE_OS}" --os-version "${MOVAI_PACKAGE_OS_VERSION}" --ros-distro "${ROS_DISTRO}" . 2> $STDERR_TMP_FILE)
 
     # generated the deb metadata sucessfully including passing dependencies validation?
@@ -142,7 +142,7 @@ function generate_package(){
 
         dpkg-buildpackage -nc -b -rfakeroot -us -uc -tc 2> $pkg_log_TMP_FILE
 
-        deb_found=$(find ../ -name "${pkg_name}*.deb") 
+        deb_found=$(find -L ../ -name "${pkg_name}*.deb") 
         if [ ! "$deb_found" ]
         then
             # print failure
@@ -267,8 +267,8 @@ done
 
 # report results
 
-expected_pkgs=$(find  ${MOVAI_PACKAGING_DIR} -name package.xml | wc -l)
-obtained_pkgs=$(find  ${MOVAI_PACKAGING_DIR} -name "*.deb" | wc -l)
+expected_pkgs=$(find -L ${MOVAI_PACKAGING_DIR} -name package.xml | wc -l)
+obtained_pkgs=$(find -L ${MOVAI_PACKAGING_DIR} -name "*.deb" | wc -l)
 
 echo -e "\033[1;35m============================================\033[0m"
 echo -e "\033[0;36mROS-WORKSPACE-PACKAGE SCRIPT SUMMARY:"
@@ -284,6 +284,6 @@ then
     fi
     echo "Copying debs to ${MOVAI_OUTPUT_DIR}"
 
-    find "${MOVAI_PACKAGING_DIR}" -type f -name '*.deb' -exec cp {} "${MOVAI_OUTPUT_DIR}" \;
+    find -L "${MOVAI_PACKAGING_DIR}" -type f -name '*.deb' -exec cp {} "${MOVAI_OUTPUT_DIR}" \;
 
 fi

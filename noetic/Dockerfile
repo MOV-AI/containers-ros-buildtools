@@ -50,7 +50,11 @@ RUN /usr/local/bin/enable-custom-rosdep.sh DEV
 
 USER root
 
-RUN /usr/local/bin/packages.bash && \
+RUN add-apt-repository ppa:git-core/ppa -y && \
+    apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install git=2.20.1 -y && \
+    /usr/local/bin/packages.bash && \
     /usr/local/bin/create-local-apt-registry.sh && \
     /usr/local/bin/rosdep-translation-setup.sh
 
