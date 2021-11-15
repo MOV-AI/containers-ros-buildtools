@@ -51,7 +51,9 @@ USER root
 
 ENV MOVAI_PPA="testing"
 
-RUN add-apt-repository ppa:git-core/ppa -y && \
+RUN apt-get update && apt-get upgrade -y &&\
+    apt-get clean &&\
+    add-apt-repository ppa:git-core/ppa -y && \
     # gh cli registry
     curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | \
     gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg && \
