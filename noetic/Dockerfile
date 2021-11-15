@@ -45,7 +45,7 @@ COPY scripts/setup-pypi-env.bash /usr/local/bin/setup-pypi-env.bash
 COPY resources/ /usr/local/share/pypi-confs/resources
 
 RUN setup-pypi-env.bash DEV 
-RUN /usr/local/bin/enable-custom-rosdep.sh DEV 
+RUN /usr/local/bin/enable-custom-rosdep.sh PROD 
 
 
 USER root
