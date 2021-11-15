@@ -12,7 +12,6 @@ LABEL maintainer="devops@mov.ai"
 LABEL movai="buildtools"
 LABEL environment="$MOVAI_ENV"
 
-
 ### Environment config
 ENV MOVAI_ENV="$MOVAI_BRANCH" \
     MOVAI_USERSPACE="${MOVAI_HOME}/user" \
@@ -50,17 +49,27 @@ RUN /usr/local/bin/enable-custom-rosdep.sh DEV
 
 USER root
 
+ENV MOVAI_PPA="testing"
+
 RUN add-apt-repository ppa:git-core/ppa -y && \
+    # gh cli registry
+    curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | \
+    gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg && \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | \ 
+    tee /etc/apt/sources.list.d/github-cli.list > /dev/null && \
+    # movai registry
+    curl -fsSL https://artifacts.cloud.mov.ai/repository/movai-applications/gpg | apt-key add - && \
+    add-apt-repository "deb [arch=all] https://artifacts.cloud.mov.ai/repository/ppa-$MOVAI_PPA $MOVAI_PPA main" && \
     apt-get update && \
     apt-get upgrade -y && \
     apt-get install git -y && \
+    apt install gh && \
     /usr/local/bin/packages.bash && \
     /usr/local/bin/create-local-apt-registry.sh && \
     /usr/local/bin/rosdep-translation-setup.sh && \
     mkdir /__w  && \
     chmod 777 /__w
 
-    
 # Install required packages
 RUN /usr/local/bin/install-packages.sh
 
@@ -68,17 +77,7 @@ RUN /usr/local/bin/install-packages.sh
 # config bloom templates
 COPY scripts/bloom-plugins/ /usr/lib/python2.7/dist-packages/bloom/generators/debian/templates/catkin/
 
-RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | \
-    gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg && \
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | \ 
-    tee /etc/apt/sources.list.d/github-cli.list > /dev/null && \
-    apt update && \
-    apt install gh
-
-
-
 # Run everything as mov.ai user
 USER movai
 
 RUN mkdir -p /opt/mov.ai/user/cache/ros/build /opt/mov.ai/user/cache/ros/devel /opt/mov.ai/user/cache/ros/logs 
-
