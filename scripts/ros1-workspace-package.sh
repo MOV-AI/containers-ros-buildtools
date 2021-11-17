@@ -180,6 +180,7 @@ function generate_package(){
 
 function boostrap_export_ros_package_xml(){
     package_xml=$1
+    echo -e "\033[0;33mInjecting the right repository into the package.xml url attribute\033[0m"
     export_section="\n  <export>\n  <\/export>\n"
     
     anchor="<\/package>"
