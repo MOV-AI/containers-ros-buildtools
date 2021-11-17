@@ -103,7 +103,7 @@ function overwrite_control_architecture(){
     anchor=$(cat debian/control | grep Architecture)
 
     if [ -z "$anchor" ]; then
-        echo "$desired_arch" >>debian/controll
+        echo "$desired_arch" >>debian/control
     fi
     
     sed -i "s/$anchor/$desired_arch/g" debian/control
@@ -118,7 +118,11 @@ function generate_package(){
     printf "Packaging ros project in $SUB_COMPONENT_DIR.\n"
 
     cd "${SUB_COMPONENT_DIR}"
-    
+
+    if [ -n "${SRC_REPO}" ];
+    then
+        boostrap_url_ros_package_xml "${SUB_COMPONENT_DIR}/package.xml" 
+    fi
     result=$(echo n | bloom-generate rosdebian --os-name "${MOVAI_PACKAGE_OS}" --os-version "${MOVAI_PACKAGE_OS_VERSION}" --ros-distro "${ROS_DISTRO}" . 2> $STDERR_TMP_FILE)
 
     # generated the deb metadata sucessfully including passing dependencies validation?
@@ -180,6 +184,21 @@ function boostrap_export_ros_package_xml(){
     
     anchor="<\/package>"
     sed -i "s/$anchor/$export_section$anchor/g" $package_xml
+}
+
+function boostrap_url_ros_package_xml(){
+    package_xml=$1
+
+    url_section=$(cat $package_xml | grep url)
+    new_url_section="  <url>$SRC_REPO<\/url>"
+
+    if [ ! "$url_section" ]
+    then
+        anchor="<\/version>"
+        sed -i "s,$anchor,$anchor\n$new_url_section,g" $package_xml
+    else
+        sed -i "s,$url_section,$new_url_section,g" $package_xml
+    fi
 }
 
 function boostrap_build_version_ros_package_xml(){
