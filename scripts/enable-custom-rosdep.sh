@@ -6,12 +6,17 @@ CUSTOM_GLOBAL_YAML_BASE="https://artifacts.cloud.mov.ai/repository/movai-applica
 GLOBAL_YAML_FILE_DEV=$CUSTOM_GLOBAL_YAML_BASE"/develop/rosdep/rosdep.yaml"
 GLOBAL_YAML_FILE_PROD=$CUSTOM_GLOBAL_YAML_BASE"/prod/rosdep/rosdep.yaml"
 
+THIRDPARTY_YAML_FILE_DEV=$CUSTOM_GLOBAL_YAML_BASE"/develop/third-party-translations/rosdep.yaml"
+THIRDPARTY_YAML_FILE_PROD=$CUSTOM_GLOBAL_YAML_BASE"/prod/third-party-translations/rosdep.yaml"
+
 if  [ "$env" == "DEV" ]; then
   GLOBAL_YAML_FILE=$GLOBAL_YAML_FILE_DEV
+  THIRDPARTY_YAML_FILE=$THIRDPARTY_YAML_FILE_DEV
 fi
 
 if  [ "$env" == "PROD" ]; then
   GLOBAL_YAML_FILE=$GLOBAL_YAML_FILE_PROD
+  THIRDPARTY_YAML_FILE=$THIRDPARTY_YAML_FILE_PROD
 fi
 
 
@@ -26,14 +31,20 @@ if [[ -n "${GLOBAL_YAML_FILE}" ]]; then
   then
     printf "# Global yaml for published ros packages\
         \nyaml $GLOBAL_YAML_FILE \n" >> $GLOBAL_ROSDEP_SOURCELIST_FILE
+
+    printf "# yaml for non defined third party dependencies\
+        \nyaml $THIRDPARTY_YAML_FILE \n" >> $GLOBAL_ROSDEP_SOURCELIST_FILE
+  
   else
     if  [ $env == "DEV" ]; then
       sed -i "s|$GLOBAL_YAML_FILE_PROD|$GLOBAL_YAML_FILE_DEV|g" $GLOBAL_ROSDEP_SOURCELIST_FILE
+      sed -i "s|$THIRDPARTY_YAML_FILE_PROD|$THIRDPARTY_YAML_FILE_DEV|g" $GLOBAL_ROSDEP_SOURCELIST_FILE
       echo "switched to DEV"
     fi
 
     if  [ $env == "PROD" ]; then
       sed -i "s|$GLOBAL_YAML_FILE_DEV|$GLOBAL_YAML_FILE_PROD|g" $GLOBAL_ROSDEP_SOURCELIST_FILE
+      sed -i "s|$THIRDPARTY_YAML_FILE_DEV|$THIRDPARTY_YAML_FILE_PROD|g" $GLOBAL_ROSDEP_SOURCELIST_FILE
       echo "switched to PROD"
     fi
 
