@@ -61,12 +61,14 @@ function local_publish(){
 }
 
 function boostrap_debian_metadata_ros_meta_pkg(){
-# possible limitation of doom
-        printf "\
-        \n#!/usr/bin/make -f
-        \n%%:
-	    \ndh \$@" > "./debian/rules"
-}
+    # possible limitation of doom
+            printf "\
+            \n#!/usr/bin/make -f
+            \n%%:
+            \ndh \$@
+            \noverride_dh_auto_configure:
+            " > "./debian/rules"
+    }
 
 function boostrap_debian_metadata_ros_pkg(){
 
