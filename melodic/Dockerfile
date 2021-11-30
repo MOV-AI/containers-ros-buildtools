@@ -51,7 +51,9 @@ USER root
 
 ENV MOVAI_PPA="testing"
 
-RUN apt-get update && apt-get upgrade -y &&\
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+# hadolint ignore=DL3008
+RUN apt-get update > /dev/null && apt-get upgrade -y &&\
     apt-get clean &&\
     add-apt-repository ppa:git-core/ppa -y && \
     # gh cli registry
@@ -62,10 +64,12 @@ RUN apt-get update && apt-get upgrade -y &&\
     # movai registry
     curl -fsSL https://artifacts.cloud.mov.ai/repository/movai-applications/gpg | apt-key add - && \
     add-apt-repository "deb [arch=all] https://artifacts.cloud.mov.ai/repository/ppa-$MOVAI_PPA $MOVAI_PPA main" && \
-    apt-get update && \
+    apt-get update > /dev/null && \
     apt-get upgrade -y && \
-    apt-get install git -y && \
-    apt install gh && \
+    apt-get install git gh -y --no-install-recommends && \
+    apt-get clean -y > /dev/null && \
+    rm -rf /var/cache/apt/* && \
+    rm -rf /var/lib/apt/lists/* && \
     /usr/local/bin/packages.bash && \
     /usr/local/bin/create-local-apt-registry.sh && \
     /usr/local/bin/rosdep-translation-setup.sh && \
