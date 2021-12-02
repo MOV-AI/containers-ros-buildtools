@@ -88,7 +88,13 @@ function boostrap_debian_metadata_ros_pkg(){
 }
 
 function is_ros_metapackage(){
-    result=$(grep "<metapackage" ./package.xml)
+    package_path=$1
+
+    if [ -z "$package_path" ]; then
+        package_path="./package.xml"
+    fi
+       
+    result="$(grep "<metapackage" $package_path)"
     IS_ROS_META_PKG=1
     if [ $result ]
     then
@@ -128,7 +134,7 @@ function generate_package(){
     # generated the deb metadata sucessfully including passing dependencies validation?
     if [ $? -eq 0 ]
     then
-        is_ros_metapackage
+        is_ros_metapackage 
         if [ $IS_ROS_META_PKG -eq 0 ]
         then
             boostrap_debian_metadata_ros_meta_pkg
@@ -204,7 +210,7 @@ function boostrap_url_ros_package_xml(){
 
 function boostrap_build_version_ros_package_xml(){
     package_xml=$1
-
+    
     export_section=$(cat $package_xml | grep "<export>")
 
     if [ ! "$export_section" ]
@@ -213,7 +219,7 @@ function boostrap_build_version_ros_package_xml(){
     fi
 
     build_version_init=0
-    build_version_attr="\n    <build_version>$build_version_init<\/build_version>"
+    build_version_attr="\n        <build_version>$build_version_init<\/build_version>"
     anchor="<export>"
 
     sed -i "s/$anchor/$anchor$build_version_attr/g" $package_xml
@@ -221,13 +227,62 @@ function boostrap_build_version_ros_package_xml(){
 }
 
 function raise_build_version(){
-    main_package="$(find -L ${MOVAI_PACKAGING_DIR} -name package.xml | awk '{ print length, $0 }' | sort -n | cut -d" " -f2- | head -n 1)"
+    pushd ${MOVAI_PACKAGING_DIR} > /dev/null
+    nr_packages="$(find -L . -name package.xml | wc -l)"
 
-    if [ -z "$main_package" ]
+    packages_xmls="$(find -L . -name package.xml | grep -E '^[.]\/\w+/package.xml')"
+
+    packages_array=($(echo $packages_xmls | tr ' ' "\n"))
+    nr_metapackages=0
+    main_package=""
+    root_level_ros_components=0
+
+    # analyse root level packages. Not analysing sub directories of them! 
+    for pkg_path in "${packages_array[@]}"
+    do
+        is_ros_metapackage $pkg_path
+        if [ $IS_ROS_META_PKG -eq 0 ]
+        then
+            ((nr_metapackages=nr_metapackages+1))
+            main_package=$pkg_path
+        else
+            ((root_level_ros_components=root_level_ros_components+1))
+            main_package_candidate=$pkg_path
+        fi
+    done
+
+
+    # Catch the: No package.xml found anywhere in the repo, despite root level. Nothing to pack.
+    if [ $nr_packages -eq 0 ]
     then
         echo -e "\e[31mNo package.xml found in this workspace. Please specify a valid workspace!\033[0m"
+        popd > /dev/null
         set -e 
         exit 3
+    fi
+    
+    # Catch the: Multiple ros metapackages in root level. Becomes impossible to find the main package to raise. Should be only one.
+    if [ $nr_metapackages -gt 1 ]
+    then
+        echo -e "\e[31mMultiple Ros Metapackages found in the root of your repository. You can only have one (found $nr_metapackages).\033[0m"
+        popd > /dev/null
+        set -e  
+        exit 4
+    fi
+
+    # Catch the: Multiple ros packages in root level without a ros metapackage. We need a metapackage to identify the main package for raise.
+    if [ $root_level_ros_components -gt 1 ] && [ $nr_metapackages -eq 0 ]
+    then
+        echo -e "\e[31mYou have multiple ros packages in root level without defining a ros metapackage.\033[0m"
+        popd > /dev/null
+        set -e 
+        exit 5
+    fi
+
+    # if no ros metapackage was found, and we passed the validations, it means i only have 1 root package and that will be my main for raise.
+    if [ $nr_metapackages -eq 0 ]
+    then
+        main_package=$main_package_candidate
     fi
 
     build_version_section=$(cat $main_package | grep build_version)
@@ -249,9 +304,7 @@ function raise_build_version(){
     sed -i "s/$(echo $build_version_section | sed -e 's/<\/\w*>'//g)/$raised_build_version_section/g" $main_package
 
     MOVAI_PACKAGE_VERSION="$(echo "$version_section" | sed 's/ //g' | sed -e 's/<\w*>'//g | sed -e 's/<\/\w*>'//g)-$raisedbuildid"
-
-
-
+    popd > /dev/null
 }
 
 if [ $MOVAI_PACKAGE_RAISE_TYPE == "CI" ]
@@ -307,3 +360,4 @@ then
     find -L "${MOVAI_PACKAGING_DIR}" -type f -name '*.deb' -exec cp {} "${MOVAI_OUTPUT_DIR}" \;
 
 fi
+
