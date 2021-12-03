@@ -240,8 +240,9 @@ function raise_build_version(){
         exit 3
     fi
 
-    root_packages="$(find -L . -name package.xml | grep -c '^.\/[^/]*/package.xml')"
+    root_packages="$(find -L . -maxdepth 2 -type f -name 'package.xml') | wc -l"
 
+    # Catch the: No package.xml found in root ros components (ros components that are in the root of the repo. Ex: ./<my_component>/package.xml).
     if [ $root_packages -eq 0 ]
     then
         echo -e "\e[31mNo packages found at the root level. Without it, mobros can not decide which version to raise (mobros chooses a main package, and his version is the one used for all in the same repository. In case of many packages in the root folder, please create a metapackage.).\033[0m"
@@ -249,9 +250,9 @@ function raise_build_version(){
         set -e  
         exit 6
     fi
-    
 
-    packages_xmls="$(find -L . -name package.xml | grep -E '^.\/[^/]*/package.xml')"
+    packages_xmls="$(find -L . -maxdepth 2 -type f -name 'package.xml')"
+    # transform into array
     packages_array=($(echo $packages_xmls | tr ' ' "\n"))
     nr_metapackages=0
     main_package=""
@@ -296,7 +297,7 @@ function raise_build_version(){
         main_package=$main_package_candidate
     fi
 
-    # store artifact for external tools to know the main package.
+    # store artifact for external tools to know the main package (sed is transforming the relative to full path).
     work_dir=$(pwd)
     main_path=$(echo $main_package | sed "s/\.\///g" )
     echo "$work_dir/$main_path" > "/tmp/main-package.mobrosinfo"
