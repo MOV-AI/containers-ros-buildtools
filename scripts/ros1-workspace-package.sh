@@ -240,7 +240,7 @@ function raise_build_version(){
         exit 3
     fi
 
-    root_packages="$(find -L . -maxdepth 2 -type f -name 'package.xml') | wc -l"
+    root_packages="$(find -L . -maxdepth 2 -type f -name 'package.xml'| wc -l)"
 
     # Catch the: No package.xml found in root ros components (ros components that are in the root of the repo. Ex: ./<my_component>/package.xml).
     if [ $root_packages -eq 0 ]
