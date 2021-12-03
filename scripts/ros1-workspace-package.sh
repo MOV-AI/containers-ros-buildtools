@@ -227,11 +227,31 @@ function boostrap_build_version_ros_package_xml(){
 }
 
 function raise_build_version(){
+
     pushd ${MOVAI_PACKAGING_DIR} > /dev/null
     nr_packages="$(find -L . -name package.xml | wc -l)"
 
-    packages_xmls="$(find -L . -name package.xml | grep -E '^[.]\/\w+/package.xml')"
+    # Catch the: No package.xml found anywhere in the repo, despite root level. Nothing to pack.
+    if [ $nr_packages -eq 0 ]
+    then
+        echo -e "\e[31mNo package.xml found in this workspace. Please specify a valid workspace!\033[0m"
+        popd > /dev/null
+        set -e 
+        exit 3
+    fi
 
+    root_packages="$(find -L . -name package.xml | grep -c '^.\/[^/]*/package.xml')"
+
+    if [ $root_packages -eq 0 ]
+    then
+        echo -e "\e[31mNo packages found at the root level. Without it, mobros can not decide which version to raise (mobros chooses a main package, and his version is the one used for all in the same repository. In case of many packages in the root folder, please create a metapackage.).\033[0m"
+        popd > /dev/null
+        set -e  
+        exit 6
+    fi
+    
+
+    packages_xmls="$(find -L . -name package.xml | grep -E '^.\/[^/]*/package.xml')"
     packages_array=($(echo $packages_xmls | tr ' ' "\n"))
     nr_metapackages=0
     main_package=""
@@ -240,6 +260,7 @@ function raise_build_version(){
     # analyse root level packages. Not analysing sub directories of them! 
     for pkg_path in "${packages_array[@]}"
     do
+
         is_ros_metapackage $pkg_path
         if [ $IS_ROS_META_PKG -eq 0 ]
         then
@@ -250,16 +271,6 @@ function raise_build_version(){
             main_package_candidate=$pkg_path
         fi
     done
-
-
-    # Catch the: No package.xml found anywhere in the repo, despite root level. Nothing to pack.
-    if [ $nr_packages -eq 0 ]
-    then
-        echo -e "\e[31mNo package.xml found in this workspace. Please specify a valid workspace!\033[0m"
-        popd > /dev/null
-        set -e 
-        exit 3
-    fi
     
     # Catch the: Multiple ros metapackages in root level. Becomes impossible to find the main package to raise. Should be only one.
     if [ $nr_metapackages -gt 1 ]
