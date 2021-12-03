@@ -210,7 +210,7 @@ function boostrap_url_ros_package_xml(){
 
 function boostrap_build_version_ros_package_xml(){
     package_xml=$1
-    
+
     export_section=$(cat $package_xml | grep "<export>")
 
     if [ ! "$export_section" ]
@@ -284,6 +284,12 @@ function raise_build_version(){
     then
         main_package=$main_package_candidate
     fi
+
+    # store artifact for external tools to know the main package.
+    work_dir=$(pwd)
+    main_path=$(echo $main_package | sed "s/\.\///g" )
+    echo "$work_dir/$main_path" > "/tmp/main-package.mobrosinfo"
+
 
     build_version_section=$(cat $main_package | grep build_version)
     version_section=$(cat $main_package | grep "<version")
