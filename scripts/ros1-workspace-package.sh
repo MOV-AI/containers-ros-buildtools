@@ -244,7 +244,7 @@ function raise_build_version(){
 
     if [ $root_packages -eq 0 ]
     then
-        echo -e "\e[31mNo packages found at the root level. Without it, mobros can not decide which version to raise.\033[0m"
+        echo -e "\e[31mNo packages found at the root level. Without it, mobros can not decide which version to raise (mobros chooses a main package, and his version is the one used for all in the same repository. In case of many packages in the root folder, please create a metapackage.).\033[0m"
         popd > /dev/null
         set -e  
         exit 6
