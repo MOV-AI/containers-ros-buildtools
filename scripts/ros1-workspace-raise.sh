@@ -30,7 +30,6 @@ MOVAI_PACKAGE_VERSION="${MOVAI_PACKAGE_VERSION:-0.0.0-dirty}"
 MOVAI_PACKAGE_RAISE_TYPE="${MOVAI_PACKAGE_RAISE_TYPE:-FULL}"
 
 
-
 function is_ros_metapackage(){
     package_path=$1
 
