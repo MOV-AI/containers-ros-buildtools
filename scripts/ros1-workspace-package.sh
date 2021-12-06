@@ -93,6 +93,22 @@ function overwrite_control_architecture(){
 
 }
 
+function is_ros_metapackage(){
+    package_path=$1
+
+    if [ -z "$package_path" ]; then
+        package_path="./package.xml"
+    fi
+       
+    result="$(grep "<metapackage" $package_path)"
+    IS_ROS_META_PKG=1
+    if [ $result ]
+    then
+        IS_ROS_META_PKG=0
+    fi
+    
+}
+
 # function to generate the deb of a ros component in a given path
 function generate_package(){
 
