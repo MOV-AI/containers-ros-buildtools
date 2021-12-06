@@ -1,1 +1,6 @@
-awscli
+rospkg==1.3.0
+empy==3.3.2
+catkin_pkg
+opencv-python==4.5.3.56
+Rtree==0.9.7
+dubins==1.0.1
