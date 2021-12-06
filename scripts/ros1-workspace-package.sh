@@ -102,7 +102,7 @@ function is_ros_metapackage(){
        
     result="$(grep "<metapackage" $package_path)"
     IS_ROS_META_PKG=1
-    if [ $result ]
+    if [ -n "$result" ]
     then
         IS_ROS_META_PKG=0
     fi
