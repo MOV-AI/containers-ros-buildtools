@@ -192,6 +192,18 @@ function boostrap_url_ros_package_xml(){
     fi
 }
 
+function find_main_package_version(){
+    main_package=$(cat /tmp/main-package.mobrosinfo)
+    build_version_section=$(cat $main_package | grep build_version)
+    version_section=$(cat $main_package | grep "<version")
+    main_version=$(echo $version_section | sed 's/ //g' | sed -e 's/<\w*>'//g | sed -e 's/<\/\w*>'//g)
+    buildid=$(echo $build_version_section | sed 's/ //g' | sed -e 's/<\w*>'//g | sed -e 's/<\/\w*>'//g)
+    MOVAI_PACKAGE_VERSION="$main_version-$buildid"
+}
+
+
+find_main_package_version
+
 SUB_COMPONENTS="$(dirname $(find -L ${MOVAI_PACKAGING_DIR} -name package.xml) | awk '{ print length, $0 }' | sort -rn | cut -d" " -f2-)"
 for SUB_COMPONENT_PATH in $SUB_COMPONENTS; do
     generate_package "$SUB_COMPONENT_PATH"
