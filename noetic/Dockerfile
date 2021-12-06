@@ -33,6 +33,7 @@ COPY scripts/movai-plugins/ /usr/local/lib/movai-plugins/
 COPY scripts/backup.sh /usr/local/bin/backup.sh
 COPY scripts/ros1-workspace-build.sh /usr/local/bin/ros1-workspace-build.sh
 COPY scripts/ros1-workspace-package.sh /usr/local/bin/ros1-workspace-package.sh
+COPY scripts/ros1-workspace-raise.sh /usr/local/bin/ros1-workspace-raise.sh
 COPY scripts/ros1-workspace-build-and-package.sh /usr/local/bin/ros1-workspace-build-and-package.sh
 COPY scripts/packages.bash /usr/local/bin/packages.bash
 COPY scripts/provision.sh /usr/local/bin/provision.sh

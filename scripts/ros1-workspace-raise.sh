@@ -159,17 +159,17 @@ function validate_and_find_main_package(){
     then
         main_package=$main_package_candidate
     fi
+    
+    # store artifact for external tools to know the main package (sed is transforming the relative to full path).
+    work_dir=$(pwd)
+    main_package=$(echo $main_package | sed "s/\.\///g" )
+    main_package="$work_dir/$main_package"
+    echo $main_package > "/tmp/main-package.mobrosinfo"
 
     popd > /dev/null
 }
 
 function raise_build_version(){
-
-    # store artifact for external tools to know the main package (sed is transforming the relative to full path).
-    work_dir=$(pwd)
-    main_path=$(echo $main_package | sed "s/\.\///g" )
-    echo "$work_dir/$main_path" > "/tmp/main-package.mobrosinfo"
-
 
     build_version_section=$(cat $main_package | grep build_version)
     version_section=$(cat $main_package | grep "<version")
