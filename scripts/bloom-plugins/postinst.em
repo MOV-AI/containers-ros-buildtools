@@ -1,7 +1,7 @@
 #!/bin/bash
 # post install script
 
-COMPONENT=@(Package)
+COMPONENT="@(Package)"
 
 if [ "$1" == "configure" ]; then
 
