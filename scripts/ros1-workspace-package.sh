@@ -72,16 +72,15 @@ function boostrap_debian_metadata_ros_pkg(){
 
     if [ -d "../metadata/" ]
     then
-
-        PACKAGE_ANCHOR='@(Package)'
+        pkg_name="$(dpkg-parsechangelog -S Source)"
         ROS_DISTRO_ANCHOR='$ROS_DISTRO'
         name_section=$(cat ./package.xml | grep "<name")
         package_name=$(echo $name_section | sed 's/ //g' | sed -e 's/<\w*>'//g | sed -e 's/<\/\w*>'//g)
 
-        sed -i "s/$PACKAGE_ANCHOR/$package_name/g" ./bloom-plugins/install.em
-        sed -i "s/$PACKAGE_ANCHOR/$package_name/g" ./bloom-plugins/postinst.em
+        sed -i "s/$pkg_name/$package_name/g" ./debian/install
+        sed -i "s/$pkg_name/$package_name/g" ./debian/postinst
         
-        sed -i "s/$ROS_DISTRO_ANCHOR/$ROS_DISTRO/g" ./bloom-plugins/postinst.em
+        sed -i "s/$ROS_DISTRO_ANCHOR/$ROS_DISTRO/g" ./debian/postinst
 
         echo -e "\033[0;33mComponent contains movai metadata. Incorporating it in deb.\033[0m"
     else
