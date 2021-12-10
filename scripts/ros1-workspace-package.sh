@@ -25,6 +25,7 @@ MOVAI_PACKAGE_OS="${MOVAI_PACKAGE_OS:-ubuntu}"
 #constants
 STDERR_TMP_FILE="/tmp/build-stderr.log"
 FAILURE_ROSDEP_MISSING_DEPENDENCY="Could not resolve rosdep key"
+FAILURE_DEBPACK_MISSING_DEPENDENCY="Could not find a package"
 LOCAL_REGISTRY="/usr/local/apt-registry"
 MOVAI_PACKAGE_OS_VERSION="$(lsb_release -cs)"
 
@@ -50,6 +51,8 @@ function local_publish(){
         \n  $MOVAI_PACKAGE_OS_VERSION:\
         \n   apt:\
         \n    packages: [$pkg_name] \n" >> /usr/local/rosdep/ros-pkgs.yaml
+
+    bash reload-local-debs.sh
 
 }
 
@@ -119,6 +122,35 @@ function is_ros_metapackage(){
     
 }
 
+function get_unmet_dependencies(){
+        result=$(( dpkg-checkbuilddeps ) 2>&1)
+        ANCHOR="dpkg-checkbuilddeps: error: Unmet build dependencies: "
+        dependencies=$(echo "$result" | sed "s/$ANCHOR//g") 
+        UNMET_DEPENDENCY_LIST=($(echo $dependencies | tr ' ' "\n"))
+}
+
+function install_generated_dependencies(){
+        STDERR_TMP_INSTALL_FILE="/tmp/$pkg_name-install-dep.log"
+
+        sudo apt-get update
+        get_unmet_dependencies
+        for depend in "${UNMET_DEPENDENCY_LIST[@]}"
+        do
+            show_result=$(( apt show -a "$depend=${MOVAI_PACKAGE_VERSION}" ) 2>&1)
+
+            package_exists=$(echo "$show_result" | grep 'was not found')
+
+            if [ -z "$package_exists" ]
+            then
+                echo -e "\033[0;33mInstallting dependency $depend.\033[0m"
+                show_result=$(( sudo apt install -y "$depend=${MOVAI_PACKAGE_VERSION}" ) 2> $STDERR_TMP_INSTALL_FILE)
+
+                cat $STDERR_TMP_INSTALL_FILE
+            fi
+
+        done
+}
+
 # function to generate the deb of a ros component in a given path
 function generate_package(){
 
@@ -153,27 +185,46 @@ function generate_package(){
         # overwrite control auto discovery of architecture to "all".
         overwrite_control_architecture
 
-        dpkg-buildpackage -nc -b -rfakeroot -us -uc -tc 2> $pkg_log_TMP_FILE
+        get_unmet_dependencies
 
-        deb_found=$(find -L ../ -name "${pkg_name}*.deb") 
-        if [ ! "$deb_found" ]
+        if [ ${#UNMET_DEPENDENCY_LIST[@]} -gt 0 ]
         then
-            # print failure
-            echo -e "\e[31mFailed during packaging :\033[0m"
-            cat $pkg_log_TMP_FILE
-            set -e 
-            exit 1
+            install_generated_dependencies
         fi
-            
-        local_publish $pkg_name
-        rosdep update
+        
+
+        dpkg-buildpackage -nc -d -b -rfakeroot -us -uc -tc 2> $pkg_log_TMP_FILE
+
+        reason_identified=$(cat $pkg_log_TMP_FILE | grep "$FAILURE_DEBPACK_MISSING_DEPENDENCY")
+
+        if [ -n "$reason_identified" ]
+        then
+            printf "Failure packaging deb: $reason_identified. \n Postponing packaging for possible dependencies to be generated.\n"
+            FAILED_DEB_BUILDS+=("$SUB_COMPONENT_DIR")
+            rm -rf debian
+            rm -rf obj*
+        else
+            deb_found=$(find -L ../ -name "${pkg_name}*.deb") 
+            if [ ! "$deb_found" ]
+            then
+                # print failure
+                echo -e "\e[31mFailed during packaging :\033[0m"
+                cat $pkg_log_TMP_FILE
+                set -e 
+                exit 1
+            fi
+
+            local_publish $pkg_name
+            rosdep update
+        fi
+
 
     else
         reason_identified=$(cat $STDERR_TMP_FILE | grep "$FAILURE_ROSDEP_MISSING_DEPENDENCY")
 
         if [ -n "$reason_identified" ]
         then
-            printf "Failure: $reason_identified. \n Postponing packaging for possible dependencies to be generated.\n"
+            printf "Failure generating deb metadata: $reason_identified. \n Postponing packaging for possible dependencies to be generated.\n"
             FAILED_DEB_BUILDS+=("$SUB_COMPONENT_DIR")
         else
             echo -e "\e[31mFailed during instantiation of meta data before packaging :"          
