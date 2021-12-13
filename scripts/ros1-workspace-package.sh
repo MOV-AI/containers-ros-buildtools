@@ -83,6 +83,7 @@ function boostrap_debian_metadata_ros_pkg(){
         sed -i "s/$pkg_name/$package_name/g" ./debian/install
         sed -i "s/$pkg_name/$package_name/g" ./debian/postinst
         
+        sed -i "s/$ROS_DISTRO_ANCHOR/$ROS_DISTRO/g" ./debian/install
         sed -i "s/$ROS_DISTRO_ANCHOR/$ROS_DISTRO/g" ./debian/postinst
 
         echo -e "\033[0;33mComponent contains movai metadata. Incorporating it in deb.\033[0m"

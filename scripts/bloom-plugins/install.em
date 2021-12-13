@@ -1,2 +1,2 @@
-../metadata/ /opt/ros/melodic/share/@(Package)
-../manifest.txt /opt/ros/melodic/share/@(Package)
+../metadata/ /opt/ros/$ROS_DISTRO/share/@(Package)
+../manifest.txt /opt/ros/$ROS_DISTRO/share/@(Package)
