@@ -56,7 +56,7 @@ if  [ "$env" == "LOCAL" ]; then
   if ! grep -q "$ROSDEP_YAML_FILE" "$GLOBAL_ROSDEP_SOURCELIST_FILE"
   then
     printf "# local yaml for local generated ros packages\
-          \nyaml file://${ROSDEP_YAML_FILE} \n" >> $GLOBAL_ROSDEP_SOURCELIST_FILE
+          \nyaml file://${ROSDEP_YAML_FILE} \n$(cat $GLOBAL_ROSDEP_SOURCELIST_FILE)" > $GLOBAL_ROSDEP_SOURCELIST_FILE
 
     echo "Enabled local rosdep yaml"
   fi
