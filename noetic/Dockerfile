@@ -79,7 +79,8 @@ RUN apt-get update > /dev/null && apt-get upgrade -y &&\
     chmod 777 /__w
 
 # Install required packages
-RUN /usr/local/bin/install-packages.sh
+RUN  echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections && \
+    /usr/local/bin/install-packages.sh
 
 # Configure installations
 # config bloom templates
