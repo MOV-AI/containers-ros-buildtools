@@ -33,7 +33,8 @@ if [[ -n "${GLOBAL_YAML_FILE}" ]]; then
         \nyaml $GLOBAL_YAML_FILE \n" >> $GLOBAL_ROSDEP_SOURCELIST_FILE
 
     printf "# yaml for non defined third party dependencies\
-        \nyaml $THIRDPARTY_YAML_FILE \n" >> $GLOBAL_ROSDEP_SOURCELIST_FILE
+        \nyaml $THIRDPARTY_YAML_FILE \n%s"\
+        "$(cat $GLOBAL_ROSDEP_SOURCELIST_FILE)" > $GLOBAL_ROSDEP_SOURCELIST_FILE
   
   else
     if  [ $env == "DEV" ]; then
