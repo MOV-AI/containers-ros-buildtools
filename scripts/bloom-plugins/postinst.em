@@ -11,7 +11,7 @@ if [ "$1" == "configure" ]; then
     if [ -d "$MOVAI_BACKUP_TOOL_PATH/tools" ]
     then
         pushd $MOVAI_BACKUP_TOOL_PATH || exit 1
-        sudo -u movai /usr/bin/python3 -m tools.backup -f -i -a import -m "$COMPONENT_INSTALL_PATH/manifest.txt" -r $COMPONENT_INSTALL_PATH -p "$COMPONENT_INSTALL_PATH/metadata" || exit 1
+        sudo -u movai /usr/bin/python3 -m tools.backup -f -i -c -a import -m "$COMPONENT_INSTALL_PATH/manifest.txt" -r $COMPONENT_INSTALL_PATH -p "$COMPONENT_INSTALL_PATH/metadata" || exit 1
         popd || exit 1
     else 
         echo -e "\033[0;33mWARNING: MOVAI tools not found. Skipped installation of movai metadata\033[0m"
