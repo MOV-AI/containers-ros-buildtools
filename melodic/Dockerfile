@@ -54,7 +54,8 @@ ENV MOVAI_PPA="testing"
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # hadolint ignore=DL3008
-RUN apt-get update > /dev/null && apt-get upgrade -y &&\
+RUN sed -i 's/archive\./pt.archive\./g' /etc/apt/sources.list &&\ 
+    apt-get update > /dev/null && apt-get upgrade -y &&\
     apt-get clean &&\
     add-apt-repository ppa:git-core/ppa -y && \
     # gh cli registry
