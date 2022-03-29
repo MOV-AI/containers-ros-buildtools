@@ -95,7 +95,7 @@ function boostrap_debian_metadata_ros_pkg(){
     fi
 }
 
-function overwrite_rules_build_target(){
+function overwrite_rules_build_mode(){
 
     sed -i 's/DEB_CXXFLAGS_MAINT_APPEND=-DNDEBUG/DEB_CXXFLAGS_MAINT_APPEND=-DNDEBUG -O3 -s/g' debian/rules
 }
@@ -201,7 +201,7 @@ function generate_package(){
 
         if [ "$BUILD_MODE" = "RELEASE" ]
         then
-            overwrite_rules_build_target
+            overwrite_rules_build_mode
         fi
 
         dpkg-buildpackage -nc -d -b -rfakeroot -us -uc -tc 2> $pkg_log_TMP_FILE

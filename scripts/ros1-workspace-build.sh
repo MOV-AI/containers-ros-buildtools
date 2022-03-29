@@ -39,8 +39,10 @@ rosdep install --from-paths ${MOVAI_USERSPACE}/cache/ros/src --ignore-src --rosd
 
 if [ "$BUILD_MODE" = "RELEASE" ]
 then
+    CMAKE_ARGS='--cmake-args -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS_RELEASE=-s -DCMAKE_CXX_FLAGS_RELEASE=-s'
+else
     if [ -z "$CMAKE_ARGS" ]; then
-        CMAKE_ARGS='--cmake-args -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS_RELEASE=-s -DCMAKE_CXX_FLAGS_RELEASE=-s'
+        CMAKE_ARGS='--cmake-args -DCMAKE_BUILD_TYPE=Debug'
     fi
 fi
 
