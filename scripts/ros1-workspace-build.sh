@@ -16,6 +16,8 @@
 #
 # File: ros1-workspace-build.sh
 
+BUILD_MODE="${BUILD_MODE:-RELEASE}"
+
 sudo apt-get update
 
 if type -t movai_install_rosinstall | grep -q "^function$"; then
@@ -35,9 +37,13 @@ wstool update -t ${MOVAI_USERSPACE}/cache/ros/src
 rosdep update
 rosdep install --from-paths ${MOVAI_USERSPACE}/cache/ros/src --ignore-src --rosdistro ${ROS_DISTRO} -y
 
-if [ -z "$CMAKE_ARGS" ]; then
-    CMAKE_ARGS='--cmake-args -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS_RELEASE=-s -DCMAKE_CXX_FLAGS_RELEASE=-s'
+if [ "$BUILD_MODE" = "RELEASE" ]
+then
+    if [ -z "$CMAKE_ARGS" ]; then
+        CMAKE_ARGS='--cmake-args -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS_RELEASE=-s -DCMAKE_CXX_FLAGS_RELEASE=-s'
+    fi
 fi
+
 
 BUILD_LIMITS="${BUILD_LIMITS:--j2 -l2 --mem-limit 50%}"
 BUILD_ARGS="${BUILD_LIMITS} -DPYTHON_VERSION=${PYTHON_VERSION:-3.6}"

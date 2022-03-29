@@ -21,6 +21,7 @@
 # - MOVAI_PACKAGING_DIR (ROOT OF YOUR PROJECT)
 
 MOVAI_PACKAGE_OS="${MOVAI_PACKAGE_OS:-ubuntu}"
+BUILD_MODE="${BUILD_MODE:-RELEASE}"
 
 #constants
 STDERR_TMP_FILE="/tmp/build-stderr.log"
@@ -31,9 +32,9 @@ MOVAI_PACKAGE_OS_VERSION="$(lsb_release -cs)"
 
 function local_publish(){
     pkg_name=$1
+    file_path=$2
 
-    find -L ../ -name "${pkg_name}*.deb" |
-    while read GEN_DEB; do cp "$GEN_DEB" "${LOCAL_REGISTRY}"; done
+    cp "$file_path" "${LOCAL_REGISTRY}"
 
     
     # have rosdep sources use ros-pkgs.yaml
@@ -92,6 +93,11 @@ function boostrap_debian_metadata_ros_pkg(){
         rm -f ./debian/install
         rm -f ./debian/postinst
     fi
+}
+
+function overwrite_rules_build_target(){
+
+    sed -i 's/DEB_CXXFLAGS_MAINT_APPEND=-DNDEBUG/DEB_CXXFLAGS_MAINT_APPEND=-DNDEBUG -O3 -s/g' debian/rules
 }
 
 function overwrite_control_architecture(){
@@ -192,7 +198,11 @@ function generate_package(){
         then
             install_generated_dependencies
         fi
-        
+
+        if [ "$BUILD_MODE" = "RELEASE" ]
+        then
+            overwrite_rules_build_target
+        fi
 
         dpkg-buildpackage -nc -d -b -rfakeroot -us -uc -tc 2> $pkg_log_TMP_FILE
 
@@ -205,7 +215,9 @@ function generate_package(){
             rm -rf debian
             rm -rf obj*
         else
-            deb_found=$(find -L ../ -name "${pkg_name}*.deb") 
+            deb_found=$(find -L ../ -name "${pkg_name}_${MOVAI_PACKAGE_VERSION}*.deb")
+            
+
             if [ ! "$deb_found" ]
             then
                 # print failure
@@ -215,7 +227,14 @@ function generate_package(){
                 exit 1
             fi
 
-            local_publish $pkg_name
+            if [ "$BUILD_MODE" = "DEBUG" ]
+            then
+                new_pkg_name=$(echo $deb_found | sed s/'.deb'/'-dbg.deb'/g )
+                mv $deb_found $new_pkg_name
+                deb_found=$new_pkg_name
+                
+            fi
+            local_publish $pkg_name $deb_found
             rosdep update
         fi
 
