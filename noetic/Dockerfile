@@ -1,6 +1,6 @@
 ARG DOCKER_REGISTRY="registry.cloud.mov.ai"
 ARG DOCKER_TAG=""
-FROM ${DOCKER_REGISTRY}/devops/movai-base-noetic:main
+FROM ${DOCKER_REGISTRY}/devops/movai-base-noetic:v1.4.5
 
 # Arguments
 ARG MOVAI_ENV="develop"
@@ -45,8 +45,8 @@ COPY $ROS_VERSION/packages/requirements.txt /tmp/requirements.txt
 COPY scripts/setup-pypi-env.bash /usr/local/bin/setup-pypi-env.bash
 COPY resources/ /usr/local/share/pypi-confs/resources
 
-RUN setup-pypi-env.bash DEV 
-RUN /usr/local/bin/enable-custom-rosdep.sh PROD 
+RUN setup-pypi-env.bash DEV
+RUN /usr/local/bin/enable-custom-rosdep.sh PROD
 
 
 USER root
@@ -55,20 +55,19 @@ ENV MOVAI_PPA="testing"
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # hadolint ignore=DL3008
-RUN sed -i 's/archive\./pt.archive\./g' /etc/apt/sources.list &&\ 
+RUN sed -i 's/archive\./pt.archive\./g' /etc/apt/sources.list &&\
     apt-get update > /dev/null && apt-get upgrade -y &&\
     apt-get clean &&\
     add-apt-repository ppa:git-core/ppa -y && \
     # gh cli registry
     curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | \
     gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg && \
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | \ 
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | \
     tee /etc/apt/sources.list.d/github-cli.list > /dev/null && \
     # movai registry
     curl -fsSL https://artifacts.cloud.mov.ai/repository/movai-applications/gpg | apt-key add - && \
     add-apt-repository "deb [arch=all] https://artifacts.cloud.mov.ai/repository/ppa-$MOVAI_PPA $MOVAI_PPA main" && \
     apt-get update > /dev/null && \
-    apt-get upgrade -y && \
     apt-get install git gh -y --no-install-recommends && \
     apt-get clean -y > /dev/null && \
     rm -rf /var/cache/apt/* && \
@@ -90,4 +89,4 @@ COPY scripts/bloom-plugins/ /usr/lib/python3/dist-packages/bloom/generators/debi
 # Run everything as mov.ai user
 USER movai
 
-RUN mkdir -p /opt/mov.ai/user/cache/ros/build /opt/mov.ai/user/cache/ros/devel /opt/mov.ai/user/cache/ros/logs 
+RUN mkdir -p /opt/mov.ai/user/cache/ros/build /opt/mov.ai/user/cache/ros/devel /opt/mov.ai/user/cache/ros/logs
