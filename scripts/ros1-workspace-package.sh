@@ -22,6 +22,7 @@
 
 MOVAI_PACKAGE_OS="${MOVAI_PACKAGE_OS:-ubuntu}"
 BUILD_MODE="${BUILD_MODE:-RELEASE}"
+STRIP_REPLACES="${STRIP_REPLACES:-false}"
 
 #constants
 STDERR_TMP_FILE="/tmp/build-stderr.log"
@@ -158,14 +159,58 @@ function install_generated_dependencies(){
         done
 }
 
+function check_if_package_ignored(){
+
+    ignoreFiles=("AMENT_IGNORE" "CATKIN_IGNORE" "COLCON_IGNORE")
+    found=0
+    for ignoreFile in ${ignoreFiles[@]}; do
+        test -f "$ignoreFile"
+        result=$?
+        ((found=found+result))
+    done
+
+    IGNORE_PACKAGE="true"
+    if  [ ${#ignoreFiles[@]} -eq $found ]
+    then
+        IGNORE_PACKAGE="false"
+    fi
+
+}
+
+function strip_replaces_in_package(){
+    package_path="./package.xml"
+       
+    placeholder="$(grep "replace" $package_path)"
+    if [ -n "$placeholder" ]
+    then
+        sed -i "s#$placeholder##g" $package_path
+    fi
+    
+}
+
 # function to generate the deb of a ros component in a given path
 function generate_package(){
 
     SUB_COMPONENT_DIR=$1
 
-    printf "Packaging ros project in $SUB_COMPONENT_DIR.\n"
-
     cd "${SUB_COMPONENT_DIR}"
+    check_if_package_ignored
+
+    if [ ${IGNORE_PACKAGE} = "true" ];
+    then
+        SKIPPED_DEB_BUILDS+=("$SUB_COMPONENT_DIR")
+        printf "Skipping ros project in $SUB_COMPONENT_DIR.\n"
+        return
+    else
+        printf "Packaging ros project in $SUB_COMPONENT_DIR.\n"
+    fi
+
+    
+    if [ $STRIP_REPLACES = "true" ];
+    then
+        strip_replaces_in_package
+    fi
+
 
     if [ -n "${SRC_REPO}" ];
     then
@@ -282,9 +327,9 @@ function find_main_package_version(){
     MOVAI_PACKAGE_VERSION="$main_version-$buildid"
 }
 
-
 find_main_package_version
 
+SKIPPED_DEB_BUILDS=()
 SUB_COMPONENTS="$(dirname $(find -L ${MOVAI_PACKAGING_DIR} -name package.xml) | awk '{ print length, $0 }' | sort -rn | cut -d" " -f2-)"
 for SUB_COMPONENT_PATH in $SUB_COMPONENTS; do
     generate_package "$SUB_COMPONENT_PATH"
@@ -316,6 +361,7 @@ obtained_pkgs=$(find -L ${MOVAI_PACKAGING_DIR} -name "*.deb" | wc -l)
 echo -e "\033[1;35m============================================\033[0m"
 echo -e "\033[0;36mROS-WORKSPACE-PACKAGE SCRIPT SUMMARY:"
 echo -e "\033[0;36mGenerated packages: \033[1;33m$obtained_pkgs \033[0;36mof \033[1;32m$expected_pkgs"
+echo -e "\033[0;36mSkipped packages: ${#SKIPPED_DEB_BUILDS[@]}\033[1;33m"
 echo -e "\033[1;35m============================================\033[0m"
 
 #copy to output dir if needed
