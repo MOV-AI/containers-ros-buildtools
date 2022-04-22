@@ -1,6 +1,6 @@
 ARG DOCKER_REGISTRY="registry.aws.cloud.mov.ai"
 ARG DOCKER_TAG=""
-FROM ${DOCKER_REGISTRY}/devops/movai-base-noetic:v1.4.5
+FROM ${DOCKER_REGISTRY}/devops/movai-base-noetic:v1.4.9
 
 # Arguments
 ARG MOVAI_ENV="develop"
@@ -55,8 +55,7 @@ ENV MOVAI_PPA="testing"
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # hadolint ignore=DL3008
-RUN sed -i 's/archive\./pt.archive\./g' /etc/apt/sources.list &&\
-    apt-get update > /dev/null && apt-get upgrade -y &&\
+RUN apt-get update > /dev/null && apt-get upgrade -y &&\
     apt-get clean &&\
     add-apt-repository ppa:git-core/ppa -y && \
     # gh cli registry
@@ -84,7 +83,7 @@ RUN  echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selecti
 
 # Configure installations
 # config bloom templates
-COPY scripts/bloom-plugins/ /usr/lib/python3/dist-packages/bloom/generators/debian/templates/catkin/
+COPY scripts/bloom-plugins/ /usr/local/lib/python3.8/dist-packages/bloom/generators/debian/templates/catkin/
 
 # Run everything as mov.ai user
 USER movai
