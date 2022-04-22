@@ -16,6 +16,5 @@ libusb-1.0-0-dev
 # packaging dependencies
 debhelper
 build-essential
-python-bloom
 devscripts
 fakeroot

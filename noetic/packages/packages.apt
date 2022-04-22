@@ -11,7 +11,6 @@ ros-noetic-catkin
 python3-catkin-tools 
 python3-osrf-pycommon 
 # packaging dependencies
-python3-bloom 
 debhelper 
 build-essential 
 devscripts 
