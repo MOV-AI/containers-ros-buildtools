@@ -45,8 +45,8 @@ COPY $ROS_VERSION/packages/requirements.txt /tmp/requirements.txt
 COPY scripts/setup-pypi-env.bash /usr/local/bin/setup-pypi-env.bash
 COPY resources/ /usr/local/share/pypi-confs/resources
 
-RUN setup-pypi-env.bash DEV 
-RUN /usr/local/bin/enable-custom-rosdep.sh PROD 
+RUN setup-pypi-env.bash DEV
+RUN /usr/local/bin/enable-custom-rosdep.sh PROD
 
 
 USER root
@@ -61,13 +61,12 @@ RUN apt-get update > /dev/null && apt-get upgrade -y &&\
     # gh cli registry
     curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | \
     gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg && \
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | \ 
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | \
     tee /etc/apt/sources.list.d/github-cli.list > /dev/null && \
     # movai registry
     curl -fsSL https://artifacts.cloud.mov.ai/repository/movai-applications/gpg | apt-key add - && \
     add-apt-repository "deb [arch=all] https://artifacts.cloud.mov.ai/repository/ppa-$MOVAI_PPA $MOVAI_PPA main" && \
     apt-get update > /dev/null && \
-    apt-get upgrade -y && \
     apt-get install git gh -y --no-install-recommends && \
     apt-get clean -y > /dev/null && \
     rm -rf /var/cache/apt/* && \
@@ -89,4 +88,4 @@ COPY scripts/bloom-plugins/ /usr/local/lib/python3.8/dist-packages/bloom/generat
 # Run everything as mov.ai user
 USER movai
 
-RUN mkdir -p /opt/mov.ai/user/cache/ros/build /opt/mov.ai/user/cache/ros/devel /opt/mov.ai/user/cache/ros/logs 
+RUN mkdir -p /opt/mov.ai/user/cache/ros/build /opt/mov.ai/user/cache/ros/devel /opt/mov.ai/user/cache/ros/logs

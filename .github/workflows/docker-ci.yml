@@ -12,9 +12,8 @@ on:
   pull_request:
     branches:
       - main
-  # on:
-  #   release:
-  #     types: [released]
+  release:
+    types: [released]
 jobs:
   ros-buildtools-melodic:
     uses: MOV-AI/.github/.github/workflows/docker-workflow.yml@v1
