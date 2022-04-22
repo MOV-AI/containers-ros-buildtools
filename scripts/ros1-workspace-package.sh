@@ -78,10 +78,14 @@ function boostrap_debian_metadata_ros_pkg(){
     if [ -d "../metadata/" ]
     then
         pkg_name="$(dpkg-parsechangelog -S Source)"
+
         ROS_DISTRO_ANCHOR='$ROS_DISTRO'
         name_section=$(cat ./package.xml | grep "<name")
         package_name=$(echo $name_section | sed 's/ //g' | sed -e 's/<\w*>'//g | sed -e 's/<\/\w*>'//g)
-
+        if [ "$BUILD_MODE" = "DEBUG" ]
+        then
+            package_name="$pkg_name-dbg"
+        fi
         sed -i "s/$pkg_name/$package_name/g" ./debian/install
         sed -i "s/$pkg_name/$package_name/g" ./debian/postinst
         
@@ -95,6 +99,19 @@ function boostrap_debian_metadata_ros_pkg(){
         rm -f ./debian/postinst
     fi
 }
+
+function overwrite_control_debug_package_name(){
+    anchor=$(cat debian/control | grep Package:)
+    new_package_name="$anchor-dbg"
+    sed -i "s/$anchor/$new_package_name/g" debian/control
+    
+    anchor=$(cat debian/control | grep Source:)
+    new_package_name="$anchor-dbg"
+    sed -i "s/$anchor/$new_package_name/g" debian/control
+
+    sed -i "s/$pkg_name/$pkg_name-dbg/g" debian/changelog
+}
+            
 
 function overwrite_rules_build_mode(){
 
@@ -232,6 +249,11 @@ function generate_package(){
         dch -b -v "${MOVAI_PACKAGE_VERSION}" "Auto created package version: ${MOVAI_PACKAGE_VERSION}"
 
         pkg_name="$(dpkg-parsechangelog -S Source)"
+        if [ "$BUILD_MODE" = "DEBUG" ]
+        then
+            overwrite_control_debug_package_name
+            pkg_name="$pkg_name-dbg"
+        fi
         pkg_log_TMP_FILE="/tmp/$pkg_name-build.log"
 
         # overwrite control auto discovery of architecture to "all".
@@ -273,13 +295,6 @@ function generate_package(){
                 exit 1
             fi
 
-            if [ "$BUILD_MODE" = "DEBUG" ]
-            then
-                new_pkg_name=$(echo $deb_found | sed s/'.deb'/'-dbg.deb'/g )
-                mv $deb_found $new_pkg_name
-                deb_found=$new_pkg_name
-                
-            fi
             local_publish $pkg_name $deb_found
             rosdep update
         fi

@@ -1,6 +1,6 @@
 ARG DOCKER_REGISTRY="registry.aws.cloud.mov.ai"
 ARG DOCKER_TAG=""
-FROM ${DOCKER_REGISTRY}/devops/movai-base-melodic:main
+FROM ${DOCKER_REGISTRY}/devops/movai-base-melodic:v1.4.9
 # Arguments
 ARG MOVAI_ENV="develop"
 ARG MOVAI_BRANCH="develop"
@@ -54,8 +54,7 @@ ENV MOVAI_PPA="testing"
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # hadolint ignore=DL3008
-RUN sed -i 's/archive\./pt.archive\./g' /etc/apt/sources.list &&\ 
-    apt-get update > /dev/null && apt-get upgrade -y &&\
+RUN apt-get update > /dev/null && apt-get upgrade -y &&\
     apt-get clean &&\
     add-apt-repository ppa:git-core/ppa -y && \
     # gh cli registry
