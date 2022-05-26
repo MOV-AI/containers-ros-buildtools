@@ -13,4 +13,6 @@ python3-osrf-pycommon
 # packaging dependencies
 debhelper 
 build-essential 
-devscripts 
+devscripts
+equivs
+git-buildpackage
