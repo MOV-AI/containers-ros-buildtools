@@ -22,8 +22,8 @@ jobs:
       docker_image: registry.aws.cloud.mov.ai/qa/ros-buildtools-melodic
       github_ref: ${{ github.ref }}
     secrets:
-      registry_user: ${{ secrets.PORTUS_APP_USER }}
-      registry_password: ${{ secrets.PORTUS_APP_TOKEN }}
+      registry_user: ${{ github.actor }}
+      registry_password: ${{ secrets.GITHUB_TOKEN }}
   ros-buildtools-noetic:
     uses: MOV-AI/.github/.github/workflows/docker-workflow.yml@main
     with:
@@ -31,5 +31,5 @@ jobs:
       docker_image: registry.aws.cloud.mov.ai/qa/ros-buildtools-noetic
       github_ref: ${{ github.ref }}
     secrets:
-      registry_user: ${{ secrets.PORTUS_APP_USER }}
-      registry_password: ${{ secrets.PORTUS_APP_TOKEN }}
+      registry_user: ${{ github.actor }}
+      registry_password: ${{ secrets.GITHUB_TOKEN }}
