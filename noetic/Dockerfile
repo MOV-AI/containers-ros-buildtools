@@ -1,4 +1,4 @@
-ARG DDCKER_REGISTRY="ghcr.io/mov-ai"
+ARG DOCKER_REGISTRY="ghcr.io/mov-ai"
 ARG DOCKER_TAG=""
 FROM ${DOCKER_REGISTRY}/ce/movai-base-noetic:v1.4.9
 
