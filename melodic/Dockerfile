@@ -1,6 +1,6 @@
 ARG DOCKER_REGISTRY="ghcr.io/mov-ai"
 ARG DOCKER_TAG=""
-FROM ${DOCKER_REGISTRY}/devops/movai-base-melodic:v1.4.9
+FROM ${DOCKER_REGISTRY}/ce/movai-base-melodic
 # Arguments
 ARG MOVAI_ENV="develop"
 ARG MOVAI_BRANCH="develop"
