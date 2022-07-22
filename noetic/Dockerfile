@@ -1,4 +1,4 @@
-ARG DOCKER_REGISTRY="registry.aws.cloud.mov.ai"
+ARG DDOCKER_REGISTRY="ghcr.io/mov-ai"
 ARG DOCKER_TAG=""
 FROM ${DOCKER_REGISTRY}/devops/movai-base-noetic:v1.4.9
 
