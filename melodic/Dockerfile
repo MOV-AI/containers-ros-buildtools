@@ -74,15 +74,16 @@ RUN apt-get update > /dev/null && apt-get upgrade -y &&\
     /usr/local/bin/packages.bash && \
     /usr/local/bin/create-local-apt-registry.sh && \
     /usr/local/bin/rosdep-translation-setup.sh && \
-    mkdir /__w  && \
-    chmod 777 /__w
+    install -d -m 0777 -o movai -g movai /__w/workspace
 
 # Install required packages
-RUN /usr/local/bin/install-packages.sh
+RUN /usr/local/bin/install-packages.sh && \ 
+    chown movai:movai -R /usr/local/
 
 # Configure installations
 # config bloom templates
 COPY scripts/bloom-plugins/ /usr/lib/python2.7/dist-packages/bloom/generators/debian/templates/catkin/
+
 
 # Run everything as mov.ai user
 USER movai
