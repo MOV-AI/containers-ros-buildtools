@@ -55,7 +55,9 @@ ENV MOVAI_PPA="testing"
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # hadolint ignore=DL3008
-RUN apt-get update > /dev/null && apt-get upgrade -y &&\
+RUN apt install curl &&\
+    curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add - && \
+    apt-get update > /dev/null && apt-get upgrade -y &&\
     apt-get clean &&\
     add-apt-repository ppa:git-core/ppa -y && \
     # gh cli registry
@@ -74,12 +76,12 @@ RUN apt-get update > /dev/null && apt-get upgrade -y &&\
     /usr/local/bin/packages.bash && \
     /usr/local/bin/create-local-apt-registry.sh && \
     /usr/local/bin/rosdep-translation-setup.sh && \
-    mkdir /__w  && \
-    chmod 777 /__w
+    install -d -m 0777 -o movai -g movai /__w/workspace
 
 # Install required packages
 RUN  echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections && \
-    /usr/local/bin/install-packages.sh
+    /usr/local/bin/install-packages.sh && \ 
+    chown movai:movai -R /usr/local/
 
 # Configure installations
 # config bloom templates
@@ -88,4 +90,6 @@ COPY scripts/bloom-plugins/ /usr/local/lib/python3.8/dist-packages/bloom/generat
 # Run everything as mov.ai user
 USER movai
 
-RUN mkdir -p /opt/mov.ai/user/cache/ros/build /opt/mov.ai/user/cache/ros/devel /opt/mov.ai/user/cache/ros/logs
+RUN mkdir -p /opt/mov.ai/user/cache/ros/build /opt/mov.ai/user/cache/ros/devel /opt/mov.ai/user/cache/ros/logs &&\
+    python3 -m pip uninstall rospkg -y &&\
+    sudo apt-get install -y python3-rospkg

@@ -80,7 +80,7 @@ function boostrap_debian_metadata_ros_pkg(){
         pkg_name="$(dpkg-parsechangelog -S Source)"
 
         ROS_DISTRO_ANCHOR='$ROS_DISTRO'
-        name_section=$(cat ./package.xml | grep "<name")
+        name_section=$(cat ./package.xml | grep "<name>.*<\/name>")
         package_name=$(echo $name_section | sed 's/ //g' | sed -e 's/<\w*>'//g | sed -e 's/<\/\w*>'//g)
         if [ "$BUILD_MODE" = "DEBUG" ]
         then
@@ -285,7 +285,6 @@ function generate_package(){
         else
             deb_found=$(find -L ../ -name "${pkg_name}_${MOVAI_PACKAGE_VERSION}*.deb")
             
-
             if [ ! "$deb_found" ]
             then
                 # print failure
@@ -296,6 +295,8 @@ function generate_package(){
             fi
 
             local_publish $pkg_name $deb_found
+
+            mv $(find -L ../ -name "${pkg_name}_${MOVAI_PACKAGE_VERSION}*.deb") .
             rosdep update
         fi
 
