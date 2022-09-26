@@ -17,7 +17,7 @@
 # File: ros1-workspace-build.sh
 
 BUILD_MODE="${BUILD_MODE:-RELEASE}"
-
+set -e
 sudo apt-get update
 
 if type -t movai_install_rosinstall | grep -q "^function$"; then
@@ -28,7 +28,7 @@ if type -t movai_install_rosinstall | grep -q "^function$"; then
 fi
 
 printf "Initialiazing Mov.ai ROS1 Workspace ...\n"
-wstool init ${MOVAI_USERSPACE}/cache/ros/src
+wstool init ${MOVAI_USERSPACE}/cache/ros/src || true
 
 # We will now build the user ROS1 workspace
 printf "Updating ROS1 Workspace:\n"
