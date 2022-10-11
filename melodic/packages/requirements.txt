@@ -4,4 +4,4 @@ catkin_pkg==0.4.22
 opencv-python==4.2.0.32
 Rtree==0.9.4
 dubins==1.0.1
-bloom
+bloom==0.11.0
