@@ -19,7 +19,7 @@
 BUILD_MODE="${BUILD_MODE:-RELEASE}"
 # Type of dependency packages to install when using rosdep
 # Eg: ROSDEP_INSTALL_DEPENDENCY_TYPES="buildtool build_export exec doc test build buildtool_export"
-ROSDEP_INSTALL_DEPENDENCY_TYPES="${ROSDEP_INSTALL_DEPENDENCY_TYPES:"All"}"
+ROSDEP_INSTALL_DEPENDENCY_TYPES="${ROSDEP_INSTALL_DEPENDENCY_TYPES:-"All"}"
 
 set -e
 sudo apt-get update
@@ -45,6 +45,8 @@ if [ "$ROSDEP_INSTALL_DEPENDENCY_TYPES" = "All" ]; then
   printf "ROSDEP: Installing all dependency types.\n"
   rosdep install --from-paths ${MOVAI_USERSPACE}/cache/ros/src --ignore-src --rosdistro ${ROS_DISTRO} -y
 else
+  # TODO: Check if all dependencies are available using rosdep check
+
   for DEPENDENCY_TYPE in $ROSDEP_INSTALL_DEPENDENCY_TYPES
   do
     printf "ROSDEP: Installing ${DEPENDENCY_TYPE} dependency types.\n"
