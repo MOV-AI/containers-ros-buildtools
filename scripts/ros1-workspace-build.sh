@@ -20,6 +20,7 @@ BUILD_MODE="${BUILD_MODE:-RELEASE}"
 # Type of dependency packages to install when using rosdep
 # Eg: ROSDEP_INSTALL_DEPENDENCY_TYPES="buildtool build_export exec doc test build buildtool_export"
 ROSDEP_INSTALL_DEPENDENCY_TYPES="${ROSDEP_INSTALL_DEPENDENCY_TYPES:-"All"}"
+ROSDEP_CHECK_FAIL_MSG_FILTER_KEY="Cannot locate rosdep definition for"
 
 set -e
 sudo apt-get update
@@ -45,8 +46,16 @@ if [ "$ROSDEP_INSTALL_DEPENDENCY_TYPES" = "All" ]; then
   printf "ROSDEP: Installing all dependency types.\n"
   rosdep install --from-paths ${MOVAI_USERSPACE}/cache/ros/src --ignore-src --rosdistro ${ROS_DISTRO} -y
 else
-  # TODO: Check if all dependencies are available using rosdep check
+  # Check if all dependencies are available using rosdep check.
+  MESSAGE=$(rosdep check --from-paths ${MOVAI_USERSPACE}/cache/ros/src --ignore-src --rosdistro ${ROS_DISTRO} 2>&1)
+  RESULT=$(echo $MESSAGE | grep -cim1 "$ROSDEP_CHECK_FAIL_MSG_FILTER_KEY")
+  if [ $RESULT = 1 ]; then
+    printf "Atleast one of your dependencies is being failed to be resolved by rosdep.\n"
+    printf "$MESSAGE.\n"
+    exit 1
+  fi
 
+  # Install each dependency
   for DEPENDENCY_TYPE in $ROSDEP_INSTALL_DEPENDENCY_TYPES
   do
     printf "ROSDEP: Installing ${DEPENDENCY_TYPE} dependency types.\n"
