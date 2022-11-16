@@ -47,17 +47,28 @@ if [ "$ROSDEP_INSTALL_DEPENDENCY_TYPES" = "all" ]; then
   rosdep install --from-paths ${MOVAI_USERSPACE}/cache/ros/src --ignore-src --rosdistro ${ROS_DISTRO} -y
 else
   # Check if all dependencies are available using rosdep check.
-  MESSAGE="$(rosdep check --from-paths ${MOVAI_USERSPACE}/cache/ros/src --ignore-src --rosdistro ${ROS_DISTRO} 2>&1)"
-  if [[ $MESSAGE == *"$ROSDEP_CHECK_FAIL_MSG_FILTER_KEY"* ]]; then
-    printf "Atleast one of your dependencies is being failed to be resolved by rosdep.\n"
-    printf "$MESSAGE.\n"
+  printf "ROSDEP: Check all dependencies are available using rosdep install --simulate.\n"
+  ####
+  # Temporarily disable exiting on error as we are running rosdep check only to get feedback-
+  # on whether the packages exist in apt and nothing more.
+  set +e
+  MESSAGE="$(rosdep install --from-paths ${MOVAI_USERSPACE}/cache/ros/src --ignore-src --rosdistro ${ROS_DISTRO} --reinstall --simulate 2>&1)"
+  set -e
+  ####
+
+  if [[ "$MESSAGE" == *"$ROSDEP_CHECK_FAIL_MSG_FILTER_KEY"* ]]; then
+    printf "ROSDEP: Atleast one of your dependencies failed to be resolved by rosdep.\n"
+    printf "%s.\n" "$MESSAGE"
     exit 1
+  else
+    printf "ROSDEP: All dependencies are resolvable using rosdep.\n"
   fi
 
   # Install each dependency
+  # Log
+  printf "ROSDEP: Installing {${ROSDEP_INSTALL_DEPENDENCY_TYPES}} dependency types.\n"
   for DEPENDENCY_TYPE in $ROSDEP_INSTALL_DEPENDENCY_TYPES
   do
-    printf "ROSDEP: Installing ${DEPENDENCY_TYPE} dependency types.\n"
     rosdep install --from-paths ${MOVAI_USERSPACE}/cache/ros/src --ignore-src --rosdistro ${ROS_DISTRO} --dependency-types=${DEPENDENCY_TYPE} -y
   done
 fi
