@@ -19,7 +19,7 @@
 BUILD_MODE="${BUILD_MODE:-RELEASE}"
 # Type of dependency packages to install when using rosdep
 # Eg: ROSDEP_INSTALL_DEPENDENCY_TYPES="buildtool build_export exec doc test build buildtool_export"
-ROSDEP_INSTALL_DEPENDENCY_TYPES="${ROSDEP_INSTALL_DEPENDENCY_TYPES:-"All"}"
+ROSDEP_INSTALL_DEPENDENCY_TYPES="${ROSDEP_INSTALL_DEPENDENCY_TYPES:-"all"}"
 ROSDEP_CHECK_FAIL_MSG_FILTER_KEY="Cannot locate rosdep definition for"
 
 set -e
@@ -42,14 +42,13 @@ wstool update -t ${MOVAI_USERSPACE}/cache/ros/src
 rosdep update
 # Choose what type of dependencies to install using rosdep
 # If ROSDEP_INSTALL_DEPENDENCY_TYPES is not defined externally, install all types, else install each given type.
-if [ "$ROSDEP_INSTALL_DEPENDENCY_TYPES" = "All" ]; then
+if [ "$ROSDEP_INSTALL_DEPENDENCY_TYPES" = "all" ]; then
   printf "ROSDEP: Installing all dependency types.\n"
   rosdep install --from-paths ${MOVAI_USERSPACE}/cache/ros/src --ignore-src --rosdistro ${ROS_DISTRO} -y
 else
   # Check if all dependencies are available using rosdep check.
-  MESSAGE=$(rosdep check --from-paths ${MOVAI_USERSPACE}/cache/ros/src --ignore-src --rosdistro ${ROS_DISTRO} 2>&1)
-  RESULT=$(echo $MESSAGE | grep -cim1 "$ROSDEP_CHECK_FAIL_MSG_FILTER_KEY")
-  if [ $RESULT = 1 ]; then
+  MESSAGE="$(rosdep check --from-paths ${MOVAI_USERSPACE}/cache/ros/src --ignore-src --rosdistro ${ROS_DISTRO} 2>&1)"
+  if [[ $MESSAGE == *"$ROSDEP_CHECK_FAIL_MSG_FILTER_KEY"* ]]; then
     printf "Atleast one of your dependencies is being failed to be resolved by rosdep.\n"
     printf "$MESSAGE.\n"
     exit 1
