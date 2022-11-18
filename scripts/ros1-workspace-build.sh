@@ -17,6 +17,11 @@
 # File: ros1-workspace-build.sh
 
 BUILD_MODE="${BUILD_MODE:-RELEASE}"
+# Type of dependency packages to install when using rosdep
+# Eg: ROSDEP_INSTALL_DEPENDENCY_TYPES="buildtool build_export exec doc test build buildtool_export"
+ROSDEP_INSTALL_DEPENDENCY_TYPES="${ROSDEP_INSTALL_DEPENDENCY_TYPES:-"all"}"
+ROSDEP_CHECK_FAIL_MSG_FILTER_KEY="Cannot locate rosdep definition for"
+
 set -e
 sudo apt-get update
 
@@ -35,7 +40,38 @@ printf "Updating ROS1 Workspace:\n"
 cd ${ROS1_USER_WS} >/dev/null
 wstool update -t ${MOVAI_USERSPACE}/cache/ros/src
 rosdep update
-rosdep install --from-paths ${MOVAI_USERSPACE}/cache/ros/src --ignore-src --rosdistro ${ROS_DISTRO} -y
+# Choose what type of dependencies to install using rosdep
+# If ROSDEP_INSTALL_DEPENDENCY_TYPES is not defined externally, install all types, else install each given type.
+if [ "$ROSDEP_INSTALL_DEPENDENCY_TYPES" = "all" ]; then
+  printf "ROSDEP: Installing all dependency types.\n"
+  rosdep install --from-paths ${MOVAI_USERSPACE}/cache/ros/src --ignore-src --rosdistro ${ROS_DISTRO} -y
+else
+  # Check if all dependencies are available using rosdep check.
+  printf "ROSDEP: Check all dependencies are available using rosdep install --simulate.\n"
+  ####
+  # Temporarily disable exiting on error as we are running rosdep check only to get feedback-
+  # on whether the packages exist in apt and nothing more.
+  set +e
+  MESSAGE="$(rosdep install --from-paths ${MOVAI_USERSPACE}/cache/ros/src --ignore-src --rosdistro ${ROS_DISTRO} --reinstall --simulate 2>&1)"
+  set -e
+  ####
+
+  if [[ "$MESSAGE" == *"$ROSDEP_CHECK_FAIL_MSG_FILTER_KEY"* ]]; then
+    printf "ROSDEP: Atleast one of your dependencies failed to be resolved by rosdep.\n"
+    printf "%s.\n" "$MESSAGE"
+    exit 1
+  else
+    printf "ROSDEP: All dependencies are resolvable using rosdep.\n"
+  fi
+
+  # Install each dependency
+  # Log
+  printf "ROSDEP: Installing {${ROSDEP_INSTALL_DEPENDENCY_TYPES}} dependency types.\n"
+  for DEPENDENCY_TYPE in $ROSDEP_INSTALL_DEPENDENCY_TYPES
+  do
+    rosdep install --from-paths ${MOVAI_USERSPACE}/cache/ros/src --ignore-src --rosdistro ${ROS_DISTRO} --dependency-types=${DEPENDENCY_TYPE} -y
+  done
+fi
 
 if [ "$BUILD_MODE" = "RELEASE" ]
 then
