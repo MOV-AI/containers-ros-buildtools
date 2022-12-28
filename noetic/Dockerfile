@@ -90,11 +90,4 @@ COPY scripts/bloom-plugins/ /usr/local/lib/python3.8/dist-packages/bloom/generat
 # Run everything as mov.ai user
 USER movai
 
-RUN mkdir -p /opt/mov.ai/user/cache/ros/build /opt/mov.ai/user/cache/ros/devel /opt/mov.ai/user/cache/ros/logs &&\
-    python3 -m pip uninstall rospkg -y
-
-USER root 
-RUN apt-get install -y python3-rospkg
-
-USER movai
-
+RUN mkdir -p /opt/mov.ai/user/cache/ros/build /opt/mov.ai/user/cache/ros/devel /opt/mov.ai/user/cache/ros/logs 
