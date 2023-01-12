@@ -1,6 +1,6 @@
 ARG DOCKER_REGISTRY="ghcr.io/mov-ai"
 ARG DOCKER_TAG=""
-FROM ${DOCKER_REGISTRY}/ce/movai-base-noetic:v1.4.9
+FROM ${DOCKER_REGISTRY}/ce/movai-base-noetic:v2.4.0
 
 # Arguments
 ARG MOVAI_ENV="develop"
@@ -80,7 +80,7 @@ RUN apt install curl &&\
 
 # Install required packages
 RUN  echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections && \
-    /usr/local/bin/install-packages.sh && \ 
+    /usr/local/bin/install-packages.sh && \
     chown movai:movai -R /usr/local/
 
 # Configure installations
@@ -90,4 +90,4 @@ COPY scripts/bloom-plugins/ /usr/local/lib/python3.8/dist-packages/bloom/generat
 # Run everything as mov.ai user
 USER movai
 
-RUN mkdir -p /opt/mov.ai/user/cache/ros/build /opt/mov.ai/user/cache/ros/devel /opt/mov.ai/user/cache/ros/logs 
+RUN mkdir -p /opt/mov.ai/user/cache/ros/build /opt/mov.ai/user/cache/ros/devel /opt/mov.ai/user/cache/ros/logs
