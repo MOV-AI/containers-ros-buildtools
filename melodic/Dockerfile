@@ -1,4 +1,4 @@
-ARG DOCKER_REGISTRY="registry.aws.cloud.mov.ai"
+ARG DOCKER_REGISTRY="pubregistry.aws.cloud.mov.ai"
 ARG DOCKER_TAG=""
 FROM ${DOCKER_REGISTRY}/ce/movai-base-melodic:v2.4.0
 # Arguments
