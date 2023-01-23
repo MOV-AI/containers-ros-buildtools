@@ -1,6 +1,6 @@
-ARG DOCKER_REGISTRY="ghcr.io/mov-ai"
+ARG DOCKER_REGISTRY="pubregistry.aws.cloud.mov.ai"
 ARG DOCKER_TAG=""
-FROM ${DOCKER_REGISTRY}/ce/movai-base-melodic:v1.4.9
+FROM ${DOCKER_REGISTRY}/ce/movai-base-melodic:v2.4.0
 # Arguments
 ARG MOVAI_ENV="develop"
 ARG MOVAI_BRANCH="develop"
@@ -77,7 +77,7 @@ RUN apt-get update > /dev/null && apt-get upgrade -y &&\
     install -d -m 0777 -o movai -g movai /__w/workspace
 
 # Install required packages
-RUN /usr/local/bin/install-packages.sh && \ 
+RUN /usr/local/bin/install-packages.sh && \
     chown movai:movai -R /usr/local/
 
 # Configure installations
