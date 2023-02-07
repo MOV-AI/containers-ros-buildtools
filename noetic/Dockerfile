@@ -76,6 +76,7 @@ RUN apt install curl &&\
     /usr/local/bin/packages.bash && \
     /usr/local/bin/create-local-apt-registry.sh && \
     /usr/local/bin/rosdep-translation-setup.sh && \
+    echo "%sudo ALL=(ALL) NOPASSWD:SETENV: /usr/local/bin/mobros" >> /etc/sudoers.d/movai && \
     install -d -m 0777 -o movai -g movai /__w/workspace
 
 # Install required packages
