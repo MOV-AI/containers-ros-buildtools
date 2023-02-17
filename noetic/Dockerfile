@@ -57,8 +57,6 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # hadolint ignore=DL3008
 RUN apt install curl &&\
     curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add - && \
-    apt-get update > /dev/null && apt-get upgrade -y &&\
-    apt-get clean &&\
     add-apt-repository ppa:git-core/ppa -y && \
     # gh cli registry
     curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | \
@@ -91,4 +89,5 @@ COPY scripts/bloom-plugins/ /usr/local/lib/python3.8/dist-packages/bloom/generat
 # Run everything as mov.ai user
 USER movai
 
-RUN mkdir -p /opt/mov.ai/user/cache/ros/build /opt/mov.ai/user/cache/ros/devel /opt/mov.ai/user/cache/ros/logs
+RUN mkdir -p /opt/mov.ai/user/cache/ros/build /opt/mov.ai/user/cache/ros/devel /opt/mov.ai/user/cache/ros/logs && \
+    python3 -m pip install pip --upgrade
