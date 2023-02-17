@@ -344,6 +344,8 @@ function find_main_package_version(){
     MOVAI_PACKAGE_VERSION="$main_version-$buildid"
 }
 
+rosdep update
+
 find_main_package_version
 
 SKIPPED_DEB_BUILDS=()
