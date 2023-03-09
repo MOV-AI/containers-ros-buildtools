@@ -67,7 +67,7 @@ RUN apt install curl &&\
     curl -fsSL https://artifacts.cloud.mov.ai/repository/movai-applications/gpg | apt-key add - && \
     add-apt-repository "deb [arch=all] https://artifacts.cloud.mov.ai/repository/ppa-$MOVAI_PPA $MOVAI_PPA main" && \
     apt-get update > /dev/null && \
-    apt-get install git gh -y --no-install-recommends && \
+    apt-get install git gh dh-virtualenv -y --no-install-recommends && \
     apt-get clean -y > /dev/null && \
     rm -rf /var/cache/apt/* && \
     rm -rf /var/lib/apt/lists/* && \
@@ -75,6 +75,7 @@ RUN apt install curl &&\
     /usr/local/bin/create-local-apt-registry.sh && \
     /usr/local/bin/rosdep-translation-setup.sh && \
     echo "%sudo ALL=(ALL) NOPASSWD:SETENV: /usr/local/bin/mobros" >> /etc/sudoers.d/movai && \
+    echo "%sudo ALL=(ALL) NOPASSWD:SETENV: /usr/bin/python3" >> /etc/sudoers.d/movai && \
     install -d -m 0777 -o movai -g movai /__w/workspace
 
 # Install required packages
