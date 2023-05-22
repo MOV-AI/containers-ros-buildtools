@@ -31,6 +31,18 @@ FAILURE_DEBPACK_MISSING_DEPENDENCY="Could not find a package"
 LOCAL_REGISTRY="/usr/local/apt-registry"
 MOVAI_PACKAGE_OS_VERSION="$(lsb_release -cs)"
 
+
+#Colors
+RED='\e[31m'
+PURPLE='\033[1;35m'
+WHITE='\033[0m'
+GREEN='\033[0;32m'
+BROWN='\033[0;33m'
+CYAN='\033[0;36m'
+
+BOLD_YELLOW='\033[1;33m'
+BOLD_GREEN='\033[1;32m'
+
 function local_publish(){
     pkg_name=$1
     file_path=$2
@@ -56,6 +68,24 @@ function local_publish(){
 
     bash reload-local-debs.sh
 
+    # check if rosdep can resolve, and if not, rosdep update
+    rosdep resolve $ros_pkg_name
+    if [ $? -ne 0 ]
+    then
+        rosdep update
+    fi
+
+}
+
+
+function rosify_package_name(){
+
+    name_section=$(cat ./package.xml | grep "<name>.*<\/name>")
+    pkg_name=$(echo $name_section | sed 's/ //g' | sed -e 's/<\w*>'//g | sed -e 's/<\/\w*>'//g)
+    #replace - with _. ros naming conventions
+    ros_pkg_name=$(echo "$pkg_name" | sed 's/_/-/g')
+    DEBIAN_PACKAGE_NAME="ros-${ROS_DISTRO}-$ros_pkg_name"
+
 }
 
 function boostrap_debian_metadata_ros_meta_pkg(){
@@ -70,7 +100,7 @@ function boostrap_debian_metadata_ros_pkg(){
 
     if [ -d "../movai_metadata/" ]
     then
-        echo -e "\e[31mStill using movai_metadata folder which is no longer acceptable. Please change to metadata.\033[0m"
+        echo -e "${RED}Still using movai_metadata folder which is no longer acceptable. Please change to metadata.${WHITE}"
         set -e 
         exit 2
     fi
@@ -92,9 +122,9 @@ function boostrap_debian_metadata_ros_pkg(){
         sed -i "s/$ROS_DISTRO_ANCHOR/$ROS_DISTRO/g" ./debian/install
         sed -i "s/$ROS_DISTRO_ANCHOR/$ROS_DISTRO/g" ./debian/postinst
 
-        echo -e "\033[0;33mComponent contains movai metadata. Incorporating it in deb.\033[0m"
+        echo -e "${BROWN}Component contains movai metadata. Incorporating it in deb.${WHITE}"
     else
-        echo -e "\033[0;33mNo movai metadata detected.\033[0m"
+        echo -e "${BROWN}No movai metadata detected.${WHITE}"
         rm -f ./debian/install
         rm -f ./debian/postinst
     fi
@@ -111,7 +141,7 @@ function overwrite_control_debug_package_name(){
 
     sed -i "s/$pkg_name/$pkg_name-dbg/g" debian/changelog
 }
-            
+
 
 function overwrite_rules_build_mode(){
 
@@ -148,33 +178,62 @@ function is_ros_metapackage(){
 }
 
 function get_unmet_dependencies(){
-        result=$(( dpkg-checkbuilddeps ) 2>&1)
-        ANCHOR="dpkg-checkbuilddeps: error: Unmet build dependencies: "
-        dependencies=$(echo "$result" | sed "s/$ANCHOR//g") 
-        UNMET_DEPENDENCY_LIST=($(echo $dependencies | tr ' ' "\n"))
+    result=$(( dpkg-checkbuilddeps ) 2>&1)
+    ANCHOR="dpkg-checkbuilddeps: error: Unmet build dependencies: "
+    dependencies=$(echo "$result" | sed "s/$ANCHOR//g") 
+    UNMET_DEPENDENCY_LIST=($(echo $dependencies | tr ' ' "\n"))
 }
 
 function install_generated_dependencies(){
-        STDERR_TMP_INSTALL_FILE="/tmp/$pkg_name-install-dep.log"
+    STDERR_TMP_INSTALL_FILE="/tmp/$pkg_name-install-dep.log"
 
-        sudo apt-get update
-        get_unmet_dependencies
-        for depend in "${UNMET_DEPENDENCY_LIST[@]}"
-        do
-            show_result=$(( apt show -a "$depend=${MOVAI_PACKAGE_VERSION}" ) 2>&1)
+    #sudo apt-get update
+    PKG_INSTALL_LIST=""
+    PKGS_FOUND=0
+    for depend in "${UNMET_DEPENDENCY_LIST[@]}"
+    do
+        if [[ " ${WORKSPACE_PACKAGES[*]} " =~ " ${depend} " ]]; then
+            # whatever you want to do when array contains value
+            # iterate in the workspace packages and find the deb
+            PUBLISHED_PACKAGES="$(find -L ${LOCAL_REGISTRY} -name "*.deb" | awk '{ print length, $0 }' | sort -rn | cut -d" " -f2-)"
+            
+            for PUB_PKG in $PUBLISHED_PACKAGES; do
+                package_found=$(dpkg --info "$PUB_PKG" | grep "Package: $depend")
 
-            package_exists=$(echo "$show_result" | grep 'was not found')
+                if [ -n "$package_found" ]
+                then
+                    PKG_INSTALL_LIST="$PKG_INSTALL_LIST $PUB_PKG"
+                    ((PKGS_FOUND=PKGS_FOUND+1))
+                fi
+            done
 
-            if [ -z "$package_exists" ]
-            then
-                echo -e "\033[0;33mInstallting dependency $depend.\033[0m"
-                show_result=$(( sudo apt install -y "$depend=${MOVAI_PACKAGE_VERSION}" ) 2> $STDERR_TMP_INSTALL_FILE)
+        # else
+        #     show_result=$(( apt show -a "$depend=${MOVAI_PACKAGE_VERSION}" ) 2>&1)
+            
+        #     package_exists=$(echo "$show_result" | grep 'was not found')
 
-                cat $STDERR_TMP_INSTALL_FILE
-            fi
+        #     if [ -z "$package_exists" ]
+        #     then
+        #         echo -e "${BROWN}Installting dependency $depend.${WHITE}"
+        #         show_result=$(( sudo apt install -y "$depend=${MOVAI_PACKAGE_VERSION}" ) 2> $STDERR_TMP_INSTALL_FILE)
 
-        done
+        #         cat $STDERR_TMP_INSTALL_FILE
+        #     fi
+        fi
+
+    done
+
+    INSTALL_GENERATED_DEP_RETURN_CODE=1
+    if [ $PKGS_FOUND -eq ${#UNMET_DEPENDENCY_LIST[@]} ]
+    then
+        echo -e "${BROWN}Installting dependencies $PKG_INSTALL_LIST."
+        show_result=$(( sudo apt install -y $PKG_INSTALL_LIST ) 2> $STDERR_TMP_INSTALL_FILE)
+        echo -e "${WHITE}"
+        INSTALL_GENERATED_DEP_RETURN_CODE=0
+
+    fi
 }
+
 
 function check_if_package_ignored(){
 
@@ -205,9 +264,8 @@ function strip_replaces_in_package(){
     
 }
 
-# function to generate the deb of a ros component in a given path
-function generate_package(){
 
+function register_local_package(){
     SUB_COMPONENT_DIR=$1
 
     cd "${SUB_COMPONENT_DIR}"
@@ -215,11 +273,34 @@ function generate_package(){
 
     if [ ${IGNORE_PACKAGE} = "true" ];
     then
-        SKIPPED_DEB_BUILDS+=("$SUB_COMPONENT_DIR")
-        printf "Skipping ros project in $SUB_COMPONENT_DIR.\n"
         return
     else
-        printf "Packaging ros project in $SUB_COMPONENT_DIR.\n"
+        echo -e "${BROWN}Subscribing local package $SUB_COMPONENT_DIR."
+    fi
+
+    rosify_package_name
+    WORKSPACE_PACKAGES+=("$DEBIAN_PACKAGE_NAME")
+
+}
+
+# function to generate the deb of a ros component in a given path
+function generate_package(){
+
+    SUB_COMPONENT_DIR=$1
+    echo -e "${WHITE}\n\n\n\n\n"
+
+    cd "${SUB_COMPONENT_DIR}"
+    check_if_package_ignored
+
+    if [ ${IGNORE_PACKAGE} = "true" ];
+    then
+        SKIPPED_DEB_BUILDS+=("$SUB_COMPONENT_DIR")
+        echo -e "${BROWN}Skipping ros project in $SUB_COMPONENT_DIR."
+        return
+    else
+        echo -e "${GREEN}---------------------------------------"
+        echo -e "${GREEN}Packaging ros project in $SUB_COMPONENT_DIR"
+        echo -e "${GREEN}---------------------------------------${WHITE}"
     fi
 
     
@@ -261,10 +342,20 @@ function generate_package(){
 
         get_unmet_dependencies
 
-
         if [ ${#UNMET_DEPENDENCY_LIST[@]} -gt 0 ]
         then
             install_generated_dependencies
+
+            if [ $INSTALL_GENERATED_DEP_RETURN_CODE -ne 0 ]
+            then
+                FAILED_DEB_BUILDS+=("$SUB_COMPONENT_DIR")
+                rm -rf debian
+                rm -rf obj*
+
+                echo -e "${BROWN}Runtime dependencies not yet generated. Skipping packaging for now.${WHITE}"
+                return
+            fi
+
         fi
 
         if [ "$BUILD_MODE" = "RELEASE" ]
@@ -278,7 +369,7 @@ function generate_package(){
 
         if [ -n "$reason_identified" ]
         then
-            printf "Failure packaging deb: $reason_identified. \n Postponing packaging for possible dependencies to be generated.\n"
+            echo -e "${RED}Failure packaging deb: $reason_identified. \n Postponing packaging for possible dependencies to be generated.${WHITE}"
             FAILED_DEB_BUILDS+=("$SUB_COMPONENT_DIR")
             rm -rf debian
             rm -rf obj*
@@ -288,7 +379,7 @@ function generate_package(){
             if [ ! "$deb_found" ]
             then
                 # print failure
-                echo -e "\e[31mFailed during packaging :\033[0m"
+                echo -e "${RED}Failed during packaging :${WHITE}"
                 cat $pkg_log_TMP_FILE
                 set -e 
                 exit 1
@@ -306,13 +397,13 @@ function generate_package(){
 
         if [ -n "$reason_identified" ]
         then
-            printf "Failure generating deb metadata: $reason_identified. \n Postponing packaging for possible dependencies to be generated.\n"
+            echo -e "${RED}Failure generating deb metadata: $reason_identified. \n Postponing packaging for possible dependencies to be generated.${WHITE}"
             FAILED_DEB_BUILDS+=("$SUB_COMPONENT_DIR")
         else
-            echo -e "\e[31mFailed during instantiation of meta data before packaging :"          
+            echo -e "${RED}Failed during instantiation of meta data before packaging :${WHITE}"
             reason_identified=$(cat $STDERR_TMP_FILE)
 
-            echo -e "\e[31m$reason_identified.\033[0m"
+            echo -e "${RED}$reason_identified.${WHITE}"
             set -e
             exit 2
         fi
@@ -345,8 +436,14 @@ function find_main_package_version(){
 }
 
 rosdep update
-
+sudo apt-get update
 find_main_package_version
+
+WORKSPACE_PACKAGES=()
+SUB_COMPONENTS="$(dirname $(find -L ${MOVAI_PACKAGING_DIR} -name package.xml) | awk '{ print length, $0 }' | sort -rn | cut -d" " -f2-)"
+for SUB_COMPONENT_PATH in $SUB_COMPONENTS; do
+    register_local_package "$SUB_COMPONENT_PATH"
+done
 
 SKIPPED_DEB_BUILDS=()
 SUB_COMPONENTS="$(dirname $(find -L ${MOVAI_PACKAGING_DIR} -name package.xml) | awk '{ print length, $0 }' | sort -rn | cut -d" " -f2-)"
@@ -357,8 +454,13 @@ done
 max_attempts=5
 for (( i=1; i<=$max_attempts; i++ ))
 do  
-    echo "Attempt number $i on resolving dependencies. Re-iterating the projects that have been postponed."
-    
+    if [ ${#FAILED_DEB_BUILDS[@]} -eq 0 ]; then
+        break
+    fi
+    echo -e "${RED}-------------------------------------------------"
+    echo -e "${RED}Attempt number $i on resolving dependencies. Re-iterating the projects that have been postponed."
+    echo -e "${RED}-------------------------------------------------"
+
     if [ ${#FAILED_DEB_BUILDS[@]} -ne 0 ]; then
 
         iterator=("${FAILED_DEB_BUILDS[@]}")   
@@ -377,11 +479,11 @@ done
 expected_pkgs=$(find -L ${MOVAI_PACKAGING_DIR} -name package.xml | wc -l)
 obtained_pkgs=$(find -L ${MOVAI_PACKAGING_DIR} -name "*.deb" | wc -l)
 
-echo -e "\033[1;35m============================================\033[0m"
-echo -e "\033[0;36mROS-WORKSPACE-PACKAGE SCRIPT SUMMARY:"
-echo -e "\033[0;36mGenerated packages: \033[1;33m$obtained_pkgs \033[0;36mof \033[1;32m$expected_pkgs"
-echo -e "\033[0;36mSkipped packages: ${#SKIPPED_DEB_BUILDS[@]}\033[1;33m"
-echo -e "\033[1;35m============================================\033[0m"
+echo -e "${PURPLE}============================================${WHITE}"
+echo -e "${CYAN}ROS-WORKSPACE-PACKAGE SCRIPT SUMMARY:"
+echo -e "${CYAN}Generated packages: ${BOLD_YELLOW}$obtained_pkgs ${CYAN}of ${BOLD_GREEN}$expected_pkgs"
+echo -e "${CYAN}Skipped packages: ${#SKIPPED_DEB_BUILDS[@]}${BOLD_YELLOW}"
+echo -e "${PURPLE}============================================${WHITE}"
 
 #copy to output dir if needed
 if [ -n "${MOVAI_OUTPUT_DIR}" ];
@@ -396,3 +498,12 @@ then
 
 fi
 
+skipped=${#SKIPPED_DEB_BUILDS[@]}
+total_expected=$((expected_pkgs-skipped))
+
+if [[ $obtained_pkgs < $total_expected ]];
+then
+    echo -e "${RED}Failed to generate all packages. Expected $total_expected but only generated $obtained_pkgs.${WHITE}"
+    set -e
+     exit 1
+fi
