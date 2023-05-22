@@ -70,6 +70,7 @@ function local_publish(){
 
     # check if rosdep can resolve, and if not, rosdep update
     rosdep resolve $ros_pkg_name
+
     if [ $? -ne 0 ]
     then
         rosdep update
@@ -207,18 +208,6 @@ function install_generated_dependencies(){
                 fi
             done
 
-        # else
-        #     show_result=$(( apt show -a "$depend=${MOVAI_PACKAGE_VERSION}" ) 2>&1)
-            
-        #     package_exists=$(echo "$show_result" | grep 'was not found')
-
-        #     if [ -z "$package_exists" ]
-        #     then
-        #         echo -e "${BROWN}Installting dependency $depend.${WHITE}"
-        #         show_result=$(( sudo apt install -y "$depend=${MOVAI_PACKAGE_VERSION}" ) 2> $STDERR_TMP_INSTALL_FILE)
-
-        #         cat $STDERR_TMP_INSTALL_FILE
-        #     fi
         fi
 
     done
@@ -388,7 +377,6 @@ function generate_package(){
             local_publish $pkg_name $deb_found
 
             mv $(find -L ../ -name "${pkg_name}_${MOVAI_PACKAGE_VERSION}*.deb") .
-            rosdep update
         fi
 
 
