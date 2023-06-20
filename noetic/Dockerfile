@@ -56,7 +56,6 @@ ENV MOVAI_PPA="testing"
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # hadolint ignore=DL3008
 RUN apt install curl &&\
-    sed -e 's#http://archive\|http://security#mirror://mirrors#g' -e 's/\/ubuntu\//\/mirrors.txt/' -i /etc/apt/sources.list && \
     curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add - && \
     add-apt-repository ppa:git-core/ppa -y && \
     # gh cli registry
