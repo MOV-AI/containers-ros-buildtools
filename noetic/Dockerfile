@@ -1,6 +1,6 @@
 ARG DOCKER_REGISTRY="pubregistry.aws.cloud.mov.ai"
 ARG DOCKER_TAG=""
-FROM ${DOCKER_REGISTRY}/ce/movai-base-noetic:v2.4.0
+FROM ${DOCKER_REGISTRY}/ce/movai-base-noetic:v2.4.2
 
 # Arguments
 ARG MOVAI_ENV="develop"
@@ -74,8 +74,6 @@ RUN apt install curl &&\
     /usr/local/bin/packages.bash && \
     /usr/local/bin/create-local-apt-registry.sh && \
     /usr/local/bin/rosdep-translation-setup.sh && \
-    echo "%sudo ALL=(ALL) NOPASSWD:SETENV: /usr/local/bin/mobros" >> /etc/sudoers.d/movai && \
-    echo "%sudo ALL=(ALL) NOPASSWD:SETENV: /usr/bin/python3" >> /etc/sudoers.d/movai && \
     install -d -m 0777 -o movai -g movai /__w/workspace
 
 # Install required packages

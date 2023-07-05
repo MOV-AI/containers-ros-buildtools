@@ -43,6 +43,11 @@ CYAN='\033[0;36m'
 BOLD_YELLOW='\033[1;33m'
 BOLD_GREEN='\033[1;32m'
 
+
+function clear_local_apt_cache(){
+    rm -f ${LOCAL_REGISTRY}/*.deb
+}
+
 function local_publish(){
     pkg_name=$1
     file_path=$2
@@ -188,18 +193,16 @@ function get_unmet_dependencies(){
 function install_generated_dependencies(){
     STDERR_TMP_INSTALL_FILE="/tmp/$pkg_name-install-dep.log"
 
-    #sudo apt-get update
     PKG_INSTALL_LIST=""
     PKGS_FOUND=0
     for depend in "${UNMET_DEPENDENCY_LIST[@]}"
     do
         if [[ " ${WORKSPACE_PACKAGES[*]} " =~ " ${depend} " ]]; then
-            # whatever you want to do when array contains value
-            # iterate in the workspace packages and find the deb
+
             PUBLISHED_PACKAGES="$(find -L ${LOCAL_REGISTRY} -name "*.deb" | awk '{ print length, $0 }' | sort -rn | cut -d" " -f2-)"
             
             for PUB_PKG in $PUBLISHED_PACKAGES; do
-                package_found=$(dpkg --info "$PUB_PKG" | grep "Package: $depend")
+                package_found=$(dpkg --info "$PUB_PKG" | grep "Package: $depend$")
 
                 if [ -n "$package_found" ]
                 then
@@ -216,7 +219,7 @@ function install_generated_dependencies(){
     if [ $PKGS_FOUND -eq ${#UNMET_DEPENDENCY_LIST[@]} ]
     then
         echo -e "${BROWN}Installting dependencies $PKG_INSTALL_LIST."
-        show_result=$(( sudo apt install -y $PKG_INSTALL_LIST ) 2> $STDERR_TMP_INSTALL_FILE)
+        sudo mobros install $PKG_INSTALL_LIST -y
         echo -e "${WHITE}"
         INSTALL_GENERATED_DEP_RETURN_CODE=0
 
@@ -333,6 +336,10 @@ function generate_package(){
 
         if [ ${#UNMET_DEPENDENCY_LIST[@]} -gt 0 ]
         then
+            echo -e "${BROWN}Missing the following dependencies:"
+            for dep_elem in "${UNMET_DEPENDENCY_LIST[@]}"; do
+                echo -e "${BROWN} $dep_elem${WHITE}"
+            done
             install_generated_dependencies
 
             if [ $INSTALL_GENERATED_DEP_RETURN_CODE -ne 0 ]
@@ -423,6 +430,7 @@ function find_main_package_version(){
     MOVAI_PACKAGE_VERSION="$main_version-$buildid"
 }
 
+clear_local_apt_cache
 rosdep update
 sudo apt-get update
 find_main_package_version
@@ -465,7 +473,7 @@ done
 # report results
 
 expected_pkgs=$(find -L ${MOVAI_PACKAGING_DIR} -name package.xml | wc -l)
-obtained_pkgs=$(find -L ${MOVAI_PACKAGING_DIR} -name "*.deb" | wc -l)
+obtained_pkgs=$(find -L ${LOCAL_REGISTRY} -name "*.deb" | wc -l)
 
 echo -e "${PURPLE}============================================${WHITE}"
 echo -e "${CYAN}ROS-WORKSPACE-PACKAGE SCRIPT SUMMARY:"
@@ -482,7 +490,7 @@ then
     fi
     echo "Copying debs to ${MOVAI_OUTPUT_DIR}"
 
-    find -L "${MOVAI_PACKAGING_DIR}" -type f -name '*.deb' -exec cp {} "${MOVAI_OUTPUT_DIR}" \;
+    find -L "${LOCAL_REGISTRY}" -type f -name '*.deb' -exec cp {} "${MOVAI_OUTPUT_DIR}" \;
 
 fi
 

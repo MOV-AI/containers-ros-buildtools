@@ -3,6 +3,9 @@
 SUDO_COMMANDS=(
     /usr/bin/dpkg
     /usr/bin/make
+    /usr/bin/python3
+    /usr/bin/rosdep
+    /usr/bin/mobros
 )
 
 # Setup available sudo commands for user movai
