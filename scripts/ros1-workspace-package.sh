@@ -167,6 +167,19 @@ function overwrite_control_architecture(){
 
 }
 
+function overwrite_compat_file(){
+    desired_compat="10"
+
+    anchor=$(cat debian/compat)
+
+    if [ -z "$anchor" ]; then
+        echo "$desired_compat" >>debian/compat
+    fi
+    
+    sed -i "s/$anchor/$desired_compat/g" debian/compat
+
+}
+
 function is_ros_metapackage(){
     package_path=$1
 
@@ -319,7 +332,7 @@ function generate_package(){
 
         boostrap_debian_metadata_ros_pkg
         # update version
-        dch -b -v "${MOVAI_PACKAGE_VERSION}" "Auto created package version: ${MOVAI_PACKAGE_VERSION}"
+        dch -b -v "${MOVAI_PACKAGE_VERSION}" "Auto created package version: ${MOVAI_PACKAGE_VERSION}" < /dev/null
 
         pkg_name="$(dpkg-parsechangelog -S Source)"
         if [ "$BUILD_MODE" = "DEBUG" ]
@@ -331,6 +344,9 @@ function generate_package(){
 
         # overwrite control auto discovery of architecture to "all".
         overwrite_control_architecture
+
+        # overwrite compat file to 10
+        overwrite_compat_file
 
         get_unmet_dependencies
 
