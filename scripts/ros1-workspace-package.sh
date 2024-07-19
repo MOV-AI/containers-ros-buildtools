@@ -59,7 +59,7 @@ function local_publish(){
     bash enable-custom-rosdep.sh "LOCAL"
 
     #ros package name from deb name
-    ros_pkg_name=$(echo "$pkg_name" | sed -e 's/ros-\w*-'//g)
+    ros_pkg_name=$(echo "$pkg_name" | sed -e 's/^ros-\w*-'//g)
     #replace - with _. ros naming conventions
     ros_pkg_name=$(echo "$ros_pkg_name" | sed 's/-/_/g')
 
