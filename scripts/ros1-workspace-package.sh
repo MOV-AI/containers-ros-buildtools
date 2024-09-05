@@ -122,6 +122,11 @@ function boostrap_debian_metadata_ros_pkg(){
         then
             package_name="$pkg_name-dbg"
         fi
+
+        # Ensure no new lines nor spaces from greps
+        read -r pkg_name <<<"${pkg_name//[$'\t\r\n']}"
+        read -r package_name <<<"${package_name//[$'\t\r\n']}"
+
         sed -i "s/$pkg_name/$package_name/g" ./debian/install
         sed -i "s/$pkg_name/$package_name/g" ./debian/postinst
         
