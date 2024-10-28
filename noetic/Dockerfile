@@ -66,6 +66,7 @@ RUN apt install curl &&\
     # movai registry
     curl -fsSL https://artifacts.cloud.mov.ai/repository/movai-applications/gpg | apt-key add - && \
     add-apt-repository "deb [arch=all] https://artifacts.cloud.mov.ai/repository/ppa-$MOVAI_PPA $MOVAI_PPA main" && \
+    add-apt-repository "deb [arch=all] https://artifacts.cloud.mov.ai/repository/ppa-proxy-ros-backup ros-backup main" && \
     apt-get update > /dev/null && \
     apt-get install git gh dh-virtualenv -y --no-install-recommends && \
     apt-get clean -y > /dev/null && \
