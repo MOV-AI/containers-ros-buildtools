@@ -17,7 +17,7 @@ on:
 jobs:
 
   ros-buildtools-noetic:
-    uses: MOV-AI/.github/.github/workflows/docker-workflow.yml@v1
+    uses: MOV-AI/.github/.github/workflows/docker-workflow.yml@v2
     with:
       docker_file: noetic/Dockerfile
       docker_image: qa/ros-buildtools-noetic
