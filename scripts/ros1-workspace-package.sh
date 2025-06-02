@@ -452,7 +452,7 @@ function find_main_package_version(){
 }
 
 clear_local_apt_cache
-rosdep update --include-eol-distros
+rosdep update --include-eol-distros --rosdistro=${ROS_DISTRO}
 sudo apt-get update
 find_main_package_version
 
