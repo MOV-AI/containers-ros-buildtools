@@ -56,6 +56,7 @@ ENV MOVAI_PPA="testing"
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # hadolint ignore=DL3008
 RUN apt install curl &&\
+    curl -fsSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros.key && \
     curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add - && \
     add-apt-repository ppa:git-core/ppa -y && \
     # gh cli registry
