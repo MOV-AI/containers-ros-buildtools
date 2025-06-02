@@ -44,7 +44,7 @@ done
 
 # Initialize ROS1
 source "/opt/ros/${ROS_DISTRO}/setup.bash"
-rosdep update
+rosdep update --include-eol-distros --rosdistro=${ROS_DISTRO}
 
 # Install SSH_KEYS if needed
 install_ssh_key
