@@ -1,6 +1,6 @@
 ARG DOCKER_REGISTRY="pubregistry.aws.cloud.mov.ai"
 ARG DOCKER_TAG=""
-FROM ${DOCKER_REGISTRY}/ce/movai-base-noetic:v2.4.2
+FROM ${DOCKER_REGISTRY}/ce/movai-base-noetic:v2.5.1
 
 # Arguments
 ARG MOVAI_ENV="develop"
