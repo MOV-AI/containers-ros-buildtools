@@ -1,6 +1,6 @@
 ARG DOCKER_REGISTRY="pubregistry.aws.cloud.mov.ai"
 ARG DOCKER_TAG=""
-FROM ${DOCKER_REGISTRY}/ce/movai-base-noetic:v2.5.1
+FROM ${DOCKER_REGISTRY}/ce/movai-base-noetic:v2.4.2
 
 # Arguments
 ARG MOVAI_ENV="develop"
@@ -56,6 +56,7 @@ ENV MOVAI_PPA="testing"
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # hadolint ignore=DL3008
 RUN apt install curl &&\
+    curl -fsSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros.key && \
     curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add - && \
     add-apt-repository ppa:git-core/ppa -y && \
     # gh cli registry

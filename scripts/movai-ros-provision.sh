@@ -13,7 +13,7 @@ source "/opt/ros/${ROS_DISTRO}/setup.bash"
 
 set -x
 
-rosdep update
+rosdep update --include-eol-distros --rosdistro=${ROS_DISTRO}
 
 printf "Preparing Mov.ai ROS packages\n"
 

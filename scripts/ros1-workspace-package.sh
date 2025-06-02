@@ -78,7 +78,7 @@ function local_publish(){
 
     if [ $? -ne 0 ]
     then
-        rosdep update
+        rosdep update --include-eol-distros --rosdistro=${ROS_DISTRO}
     fi
 
 }
@@ -452,7 +452,7 @@ function find_main_package_version(){
 }
 
 clear_local_apt_cache
-rosdep update
+rosdep update --include-eol-distros --rosdistro=${ROS_DISTRO}
 sudo apt-get update
 find_main_package_version
 
