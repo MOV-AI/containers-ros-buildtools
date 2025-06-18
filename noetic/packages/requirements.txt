@@ -6,3 +6,4 @@ Rtree==0.9.7
 dubins==1.0.1
 bloom
 psutil
+bump-my-version==0.29.0
