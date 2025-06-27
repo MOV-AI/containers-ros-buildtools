@@ -8,7 +8,9 @@ if [ "$1" == "configure" ]; then
     COMPONENT_INSTALL_PATH="/opt/ros/$ROS_DISTRO/share/$COMPONENT"
     MOVAI_BACKUP_TOOL_PATH="/opt/mov.ai/app"
 
-    if [ -d "$MOVAI_BACKUP_TOOL_PATH/tools" ]
+    if command -v mobdata >/dev/null 2>&1; then
+        mobdata import -f -i -c -m "$COMPONENT_INSTALL_PATH/manifest.txt" -r $COMPONENT_INSTALL_PATH -p "$COMPONENT_INSTALL_PATH/metadata" || exit 1
+    elif [ -d "$MOVAI_BACKUP_TOOL_PATH/tools" ]
     then
         pushd $MOVAI_BACKUP_TOOL_PATH || exit 1
         sudo -u movai /usr/bin/python3 -m tools.backup -f -i -c -a import -m "$COMPONENT_INSTALL_PATH/manifest.txt" -r $COMPONENT_INSTALL_PATH -p "$COMPONENT_INSTALL_PATH/metadata" || exit 1
