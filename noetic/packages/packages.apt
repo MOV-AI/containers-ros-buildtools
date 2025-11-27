@@ -16,3 +16,4 @@ build-essential
 devscripts
 equivs
 git-buildpackage
+yamllint
