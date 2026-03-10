@@ -1,0 +1,9 @@
+#TODO: check latest versions of packages and update as needed
+rospkg
+empy
+catkin_pkg
+opencv-python
+Rtree
+bloom
+psutil
+bump-my-version

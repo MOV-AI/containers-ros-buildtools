@@ -1,0 +1,20 @@
+# Mov.ai ROS1 base packages
+cmake 
+git 
+zip 
+unzip 
+software-properties-common 
+nano 
+bash 
+openssh-client 
+# packaging dependencies
+debhelper 
+build-essential 
+devscripts
+equivs
+git-buildpackage
+yamllint
+gh 
+dh-virtualenv
+python3-colcon-common-extensions 
+python3-bloom

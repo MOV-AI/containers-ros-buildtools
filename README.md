@@ -11,3 +11,7 @@ Melodic version :
 Noetic version :
 
     docker build --pull -t ros-buildtools:noetic -f noetic/Dockerfile .
+
+Humble version :
+
+    docker build --pull -t ros-buildtools:humble -f humble/Dockerfile .
