@@ -1,7 +1,6 @@
 ARG DOCKER_REGISTRY="pubregistry.aws.cloud.mov.ai"
 ARG DOCKER_TAG=""
 FROM ${DOCKER_REGISTRY}/ce/spawner-base-humble:3.2.2
-#ask alex https://github.com/MOV-AI/containers-movai-base/pkgs/container/ce%2Fmovai-base-humble
 
 # Arguments
 ARG MOVAI_ENV="develop"
@@ -18,7 +17,7 @@ LABEL environment="$MOVAI_ENV"
 ENV MOVAI_ENV="$MOVAI_BRANCH" \
     MOVAI_USERSPACE="${MOVAI_HOME}/user" \
     ROS_VERSION="${ROS_DISTRO}" \
-    PYTHON_VERSION=3.8 \
+    PYTHON_VERSION=3.10 \
     ROS2_MOVAI_WS="${MOVAI_HOME}/workspaces/MOVAI_ROS2" \
     ROS2_USER_WS="${MOVAI_HOME}/workspaces/USER_ROS2"
 
@@ -27,8 +26,8 @@ USER root
 COPY scripts/user.rc /tmp/user.rc
 RUN /usr/local/bin/user-provision.sh
 
-# Copy runtime scriptsc
-# [] NEED EQUIVELENT SCRIPTS FOR HUMBLE TO BE CREATED
+# Copy runtime scripts
+# [] NEED EQUIVALENT SCRIPTS FOR HUMBLE TO BE CREATED
 # COPY scripts/ros1-workspace-build.sh /usr/local/bin/ros1-workspace-build.sh
 # COPY scripts/ros1-workspace-package.sh /usr/local/bin/ros1-workspace-package.sh
 # COPY scripts/ros1-workspace-raise.sh /usr/local/bin/ros1-workspace-raise.sh
@@ -50,9 +49,8 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # hadolint ignore=DL3008
 # [] NEED EQUIVALENT FOR HUMBLE
 # [] NEED DEDICATED BACKUP - line 68
-RUN apt install curl &&\
-    curl -fsSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros.key && \
-    curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add - && \
+RUN apt-get update && apt-get install -y curl &&\
+    curl -fsSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg && \
     add-apt-repository ppa:git-core/ppa -y && \
     # gh cli registry
     curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | \
@@ -81,7 +79,7 @@ RUN  echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selecti
 
 # Configure installations
 # config bloom templates
-COPY scripts/bloom-plugins/ /usr/local/lib/python3.8/dist-packages/bloom/generators/debian/templates/catkin/
+COPY scripts/bloom-plugins/ /usr/local/lib/python3.10/dist-packages/bloom/generators/debian/templates/catkin/
 
 # Run everything as mov.ai user
 USER movai
