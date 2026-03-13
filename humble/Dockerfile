@@ -14,7 +14,8 @@ LABEL movai="buildtools"
 LABEL environment="$MOVAI_ENV"
 
 ### Environment config
-ENV MOVAI_ENV="$MOVAI_BRANCH" \
+ENV ROS_DISTRO="humble" \
+    MOVAI_ENV="$MOVAI_BRANCH" \
     MOVAI_USERSPACE="${MOVAI_HOME}/user" \
     ROS_VERSION="${ROS_DISTRO}" \
     PYTHON_VERSION=3.10 \
@@ -33,6 +34,8 @@ RUN /usr/local/bin/user-provision.sh
 # COPY scripts/ros1-workspace-raise.sh /usr/local/bin/ros1-workspace-raise.sh
 # COPY scripts/ros1-workspace-build-and-package.sh /usr/local/bin/ros1-workspace-build-and-package.sh
 
+COPY scripts/ros2-workspace-build.sh /usr/local/bin/ros2-workspace-build.sh
+
 COPY scripts/create-local-apt-registry.sh /usr/local/bin/create-local-apt-registry.sh
 COPY scripts/rosdep-translation-setup.sh /usr/local/bin/rosdep-translation-setup.sh
 COPY scripts/enable-custom-rosdep.sh /usr/local/bin/enable-custom-rosdep.sh
@@ -44,6 +47,7 @@ RUN /usr/local/bin/enable-custom-rosdep.sh PROD
 
 
 ENV MOVAI_PPA="ros2-testing"
+
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # hadolint ignore=DL3008
@@ -58,8 +62,9 @@ RUN apt-get update && apt-get install -y curl &&\
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | \
     tee /etc/apt/sources.list.d/github-cli.list > /dev/null && \
     # movai registry
-    curl -fsSL https://artifacts.cloud.mov.ai/repository/movai-applications/gpg | apt-key add - && \
-    add-apt-repository "deb [arch=all] https://artifacts.cloud.mov.ai/repository/ppa-$MOVAI_PPA testing main" && \
+    curl -fsSL https://artifacts.cloud.mov.ai/repository/movai-applications/gpg | gpg --dearmor -o /usr/share/keyrings/movai-archive-keyring.gpg && \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/movai-archive-keyring.gpg] https://artifacts.cloud.mov.ai/repository/ppa-$MOVAI_PPA testing main" | \
+    tee -a /etc/apt/sources.list.d/movai.list > /dev/null && \
     # add-apt-repository "deb [arch=all,amd64] https://artifacts.aws.cloud.mov.ai/repository/ppa-proxy-ros-backup ros-backup main" && \
     apt-get update > /dev/null && \
     apt-get clean -y > /dev/null && \
