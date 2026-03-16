@@ -20,7 +20,7 @@ ENV ROS_DISTRO="humble" \
     ROS_VERSION="${ROS_DISTRO}" \
     PYTHON_VERSION=3.10 \
     ROS2_MOVAI_WS="${MOVAI_HOME}/workspaces/MOVAI_ROS2" \
-    ROS2_USER_WS="${MOVAI_HOME}/workspaces/USER_ROS2"
+    ROS2_USER_WS="/__w/workspace/src/"
 
 USER root    
 # Specific tasks to do to the user homespace
@@ -34,7 +34,10 @@ RUN /usr/local/bin/user-provision.sh
 # COPY scripts/ros1-workspace-raise.sh /usr/local/bin/ros1-workspace-raise.sh
 # COPY scripts/ros1-workspace-build-and-package.sh /usr/local/bin/ros1-workspace-build-and-package.sh
 
-COPY scripts/ros2-workspace-build.sh /usr/local/bin/ros2-workspace-build.sh
+COPY scripts/ros1-workspace-build.sh /usr/local/bin/ros1-workspace-build.sh
+COPY scripts/ros1-workspace-package.sh /usr/local/bin/ros1-workspace-package.sh
+COPY scripts/ros1-workspace-raise.sh /usr/local/bin/ros1-workspace-raise.sh
+COPY scripts/ros1-workspace-build-and-package.sh /usr/local/bin/ros1-workspace-build-and-package.sh
 
 COPY scripts/create-local-apt-registry.sh /usr/local/bin/create-local-apt-registry.sh
 COPY scripts/rosdep-translation-setup.sh /usr/local/bin/rosdep-translation-setup.sh

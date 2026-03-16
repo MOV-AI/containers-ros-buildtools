@@ -96,9 +96,6 @@ else
     # Source ROS2 environment
     source /opt/ros/${ROS_DISTRO}/setup.bash
 
-    # dependencies using rosdep
-    rosdep install --from-paths ./ --ignore-src --rosdistro ${ROS_DISTRO} -y --as-root pip:false
-
     # Build User Workspace
     printf "Building ROS2 Workspace with args:\n"
     printf "\t args: %s\n" "${BUILD_ARGS}"

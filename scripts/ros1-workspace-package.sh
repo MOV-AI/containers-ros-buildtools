@@ -457,6 +457,7 @@ sudo apt-get update
 find_main_package_version
 
 WORKSPACE_PACKAGES=()
+echo -e "${MOVAI_PACKAGING_DIR} for packaging"  #debug
 SUB_COMPONENTS="$(dirname $(find -L ${MOVAI_PACKAGING_DIR} -name package.xml) | awk '{ print length, $0 }' | sort -rn | cut -d" " -f2-)"
 for SUB_COMPONENT_PATH in $SUB_COMPONENTS; do
     register_local_package "$SUB_COMPONENT_PATH"
