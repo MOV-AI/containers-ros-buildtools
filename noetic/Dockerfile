@@ -1,6 +1,6 @@
 ARG DOCKER_REGISTRY="pubregistry.aws.cloud.mov.ai"
 ARG DOCKER_TAG=""
-FROM ${DOCKER_REGISTRY}/ce/movai-base-noetic:v2.4.2
+FROM ${DOCKER_REGISTRY}/ce/movai-base-noetic:v2.7.5
 
 # Arguments
 ARG MOVAI_ENV="develop"
@@ -40,8 +40,6 @@ COPY scripts/provision.sh /usr/local/bin/provision.sh
 COPY scripts/create-local-apt-registry.sh /usr/local/bin/create-local-apt-registry.sh
 COPY scripts/rosdep-translation-setup.sh /usr/local/bin/rosdep-translation-setup.sh
 COPY scripts/enable-custom-rosdep.sh /usr/local/bin/enable-custom-rosdep.sh
-COPY $ROS_VERSION/packages/packages.apt /tmp/packages.apt
-COPY $ROS_VERSION/packages/requirements.txt /tmp/requirements.txt
 COPY scripts/setup-pypi-env.bash /usr/local/bin/setup-pypi-env.bash
 COPY resources/ /usr/local/share/pypi-confs/resources
 
@@ -69,7 +67,7 @@ RUN apt install curl &&\
     add-apt-repository "deb [arch=all] https://artifacts.cloud.mov.ai/repository/ppa-$MOVAI_PPA $MOVAI_PPA main" && \
     add-apt-repository "deb [arch=all,amd64] https://artifacts.aws.cloud.mov.ai/repository/ppa-proxy-ros-backup ros-backup main" && \
     apt-get update > /dev/null && \
-    apt-get install git gh dh-virtualenv -y --no-install-recommends && \
+    python3 -m pip install pip --upgrade && \
     apt-get clean -y > /dev/null && \
     rm -rf /var/cache/apt/* && \
     rm -rf /var/lib/apt/lists/* && \
@@ -79,16 +77,20 @@ RUN apt install curl &&\
     install -d -m 0777 -o movai -g movai /__w/workspace
 
 # Install required packages
+COPY $ROS_VERSION/packages/packages.apt /tmp/packages.apt
+COPY $ROS_VERSION/packages/requirements.txt /tmp/requirements.txt
+
 RUN  echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections && \
     /usr/local/bin/install-packages.sh && \
     chown movai:movai -R /usr/local/
 
 # Configure installations
 # config bloom templates
-COPY scripts/bloom-plugins/ /usr/local/lib/python3.8/dist-packages/bloom/generators/debian/templates/catkin/
+COPY scripts/bloom-plugins/ /usr/local/lib/${PYTHON_VERSION}/dist-packages/bloom/generators/debian/templates/catkin/
 
 # Run everything as mov.ai user
 USER movai
 
 RUN mkdir -p /opt/mov.ai/user/cache/ros/build /opt/mov.ai/user/cache/ros/devel /opt/mov.ai/user/cache/ros/logs && \
-    python3 -m pip install pip --upgrade
+    python3 -m pip install -i https://artifacts.cloud.mov.ai/repository/pypi-edge/simple --extra-index-url https://pypi.org/simple mobros==2.1.1.2 --ignore-installed && \
+    python3 -m pip install mobtest==0.0.2.2 --ignore-installed

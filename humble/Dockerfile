@@ -1,6 +1,6 @@
 ARG DOCKER_REGISTRY="pubregistry.aws.cloud.mov.ai"
 ARG DOCKER_TAG=""
-FROM ${DOCKER_REGISTRY}/ce/spawner-base-humble:3.2.2
+FROM ${DOCKER_REGISTRY}/ce/movai-base-humble:v2.7.5
 
 # Arguments
 ARG MOVAI_ENV="develop"
@@ -22,23 +22,15 @@ ENV ROS_DISTRO="humble" \
     ROS2_MOVAI_WS="${MOVAI_HOME}/workspaces/MOVAI_ROS2" \
     ROS2_USER_WS="/__w/workspace/src/"
 
-USER root    
 # Specific tasks to do to the user homespace
 COPY scripts/user.rc /tmp/user.rc
 RUN /usr/local/bin/user-provision.sh
-
-# Copy runtime scripts
-# [] NEED EQUIVALENT SCRIPTS FOR HUMBLE TO BE CREATED
-# COPY scripts/ros1-workspace-build.sh /usr/local/bin/ros1-workspace-build.sh
-# COPY scripts/ros1-workspace-package.sh /usr/local/bin/ros1-workspace-package.sh
-# COPY scripts/ros1-workspace-raise.sh /usr/local/bin/ros1-workspace-raise.sh
-# COPY scripts/ros1-workspace-build-and-package.sh /usr/local/bin/ros1-workspace-build-and-package.sh
 
 COPY scripts/ros1-workspace-build.sh /usr/local/bin/ros1-workspace-build.sh
 COPY scripts/ros1-workspace-package.sh /usr/local/bin/ros1-workspace-package.sh
 COPY scripts/ros1-workspace-raise.sh /usr/local/bin/ros1-workspace-raise.sh
 COPY scripts/ros1-workspace-build-and-package.sh /usr/local/bin/ros1-workspace-build-and-package.sh
-
+COPY scripts/packages.bash /usr/local/bin/packages.bash
 COPY scripts/create-local-apt-registry.sh /usr/local/bin/create-local-apt-registry.sh
 COPY scripts/rosdep-translation-setup.sh /usr/local/bin/rosdep-translation-setup.sh
 COPY scripts/enable-custom-rosdep.sh /usr/local/bin/enable-custom-rosdep.sh
@@ -49,8 +41,9 @@ RUN setup-pypi-env.bash DEV
 RUN /usr/local/bin/enable-custom-rosdep.sh PROD
 
 
-ENV MOVAI_PPA="ros2-testing"
+USER root
 
+ENV MOVAI_PPA="ros2-testing"
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # hadolint ignore=DL3008
@@ -70,9 +63,12 @@ RUN apt-get update && apt-get install -y curl &&\
     tee -a /etc/apt/sources.list.d/movai.list > /dev/null && \
     # add-apt-repository "deb [arch=all,amd64] https://artifacts.aws.cloud.mov.ai/repository/ppa-proxy-ros-backup ros-backup main" && \
     apt-get update > /dev/null && \
+    apt-get install -y python3-pip --reinstall && \
+    python3 -m pip install --upgrade pip && \
     apt-get clean -y > /dev/null && \
     rm -rf /var/cache/apt/* && \
     rm -rf /var/lib/apt/lists/* && \
+    /usr/local/bin/packages.bash && \
     /usr/local/bin/create-local-apt-registry.sh && \
     /usr/local/bin/rosdep-translation-setup.sh && \
     install -d -m 0777 -o movai -g movai /__w/workspace
@@ -87,13 +83,15 @@ RUN  echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selecti
 
 # Configure installations
 # config bloom templates
-COPY scripts/bloom-plugins/ /usr/local/lib/python3.10/dist-packages/bloom/generators/debian/templates/catkin/
+COPY scripts/bloom-plugins/ /usr/local/lib/${PYTHON_VERSION}/dist-packages/bloom/generators/debian/templates/catkin/
 
 # Run everything as mov.ai user
 USER movai
 
 RUN mkdir -p /opt/mov.ai/user/cache/ros/build /opt/mov.ai/user/cache/ros/devel /opt/mov.ai/user/cache/ros/logs && \
-    mkdir -p /opt/mov.ai/user/cache/ros2/build /opt/mov.ai/user/cache/ros2/install /opt/mov.ai/user/cache/ros2/logs 
+    mkdir -p /opt/mov.ai/user/cache/ros2/build /opt/mov.ai/user/cache/ros2/install /opt/mov.ai/user/cache/ros2/logs && \
+    python3 -m pip install -i https://artifacts.cloud.mov.ai/repository/pypi-edge/simple --extra-index-url https://pypi.org/simple mobros==2.1.1.2 --ignore-installed && \
+    python3 -m pip install mobtest==0.0.2.2 --ignore-installed
 
 # Set entrypoint for ROS2 build
 ENTRYPOINT ["/bin/bash"]

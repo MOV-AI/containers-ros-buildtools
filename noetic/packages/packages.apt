@@ -17,3 +17,5 @@ devscripts
 equivs
 git-buildpackage
 yamllint
+gh 
+dh-virtualenv
