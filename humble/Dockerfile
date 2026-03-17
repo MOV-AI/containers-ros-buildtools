@@ -40,7 +40,6 @@ COPY resources/ /usr/local/share/pypi-confs/resources
 RUN setup-pypi-env.bash DEV
 RUN /usr/local/bin/enable-custom-rosdep.sh PROD
 
-
 USER root
 
 ENV MOVAI_PPA="ros2-testing"
@@ -90,7 +89,7 @@ USER movai
 
 RUN mkdir -p /opt/mov.ai/user/cache/ros/build /opt/mov.ai/user/cache/ros/devel /opt/mov.ai/user/cache/ros/logs && \
     mkdir -p /opt/mov.ai/user/cache/ros2/build /opt/mov.ai/user/cache/ros2/install /opt/mov.ai/user/cache/ros2/logs && \
-    python3 -m pip install -i https://artifacts.cloud.mov.ai/repository/pypi-edge/simple --extra-index-url https://pypi.org/simple mobros==2.1.1.2 --ignore-installed && \
+    python3 -m pip install -i https://artifacts.cloud.mov.ai/repository/pypi-edge/simple --extra-index-url https://pypi.org/simple mobros==2.1.1.6 --ignore-installed && \
     python3 -m pip install mobtest==0.0.2.2 --ignore-installed
 
 # Set entrypoint for ROS2 build

@@ -13,7 +13,8 @@ LABEL movai="buildtools"
 LABEL environment="$MOVAI_ENV"
 
 ### Environment config
-ENV MOVAI_ENV="$MOVAI_BRANCH" \
+ENV ROS_DISTRO="melodic" \
+    MOVAI_ENV="$MOVAI_BRANCH" \
     MOVAI_USERSPACE="${MOVAI_HOME}/user" \
     ROS_VERSION="${ROS_DISTRO}" \
     PYTHON_VERSION=3.6 \
