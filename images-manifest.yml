@@ -1,0 +1,14 @@
+version: 0.1.0
+
+images:
+  - name: ros-buildtools-noetic
+    docker_file: noetic/Dockerfile
+    docker_image: qa/ros-buildtools-noetic
+
+#  - name: ros-buildtools-melodic
+#    docker_file: melodic/Dockerfile
+#    docker_image: qa/ros-buildtools-melodic
+#
+#  - name: ros-buildtools-humble
+#    docker_file: humble/Dockerfile
+#    docker_image: qa/ros-buildtools-humble
