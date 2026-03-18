@@ -5,10 +5,10 @@ set -e
 ROS_DISTRO="humble"
 
 # pipeline behaviour
-ROS_BUILDTOOLS_DOCKER_IMAGE="ros-buildtools:humble"
+ROS_BUILDTOOLS_DOCKER_IMAGE="ros-buildtools:${ROS_DISTRO}"
 # making sure its in the working directory despite where its being called from.
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-cd "$SCRIPT_DIR"
+#SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+#cd "$SCRIPT_DIR"
 
 IN_CONTAINER_MOUNT_POINT="/__w/workspace/src"
 
@@ -28,14 +28,21 @@ export MOVAI_OUTPUT_DIR=/__w/workspace/src/packages
 export PATH=/opt/mov.ai/.local/bin:$PATH
 
 mobtest repo \"/__w/workspace/src\"
+
+ls \"/__w/workspace/src\"
+
+echo '------- Raising packages -------'
 mobros raise --workspace="/__w/workspace/src"
 
+echo '------- Installing build dependencies -------'
 sudo mobros install-build-dependencies  --workspace="/__w/workspace/src"
+echo '------- Building packages -------'
 mobros build 
+echo '------- Packing packages -------'
 mobros pack --workspace="/__w/workspace/src" --mode release 
 
 " || true
 
-echo "container: $container_id"
+echo "removing container: ${container_id}"
 docker rm -f "$container_id"
 

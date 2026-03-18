@@ -260,7 +260,33 @@ function check_if_package_ignored(){
     then
         IGNORE_PACKAGE="false"
     fi
+}
 
+function check_if_package_ignored_recursive() {
+    # Start from the current directory
+    local current_dir=$(pwd)
+    local ignore_files=("AMENT_IGNORE" "CATKIN_IGNORE" "COLCON_IGNORE")
+    
+    IGNORE_PACKAGE="false"
+
+    # Walk up the tree until we reach the root or the base packaging directory
+    while [[ "$current_dir" != "" && "$current_dir" != "/" ]]; do
+        for marker in "${ignore_files[@]}"; do
+            if [ -f "$current_dir/$marker" ]; then
+                echo -e "${BROWN}Found $marker at $current_dir. Ignoring sub-tree.${WHITE}"
+                IGNORE_PACKAGE="true"
+                return 0
+            fi
+        done
+
+        # Stop walking up if we've reached the root of the workspace to avoid system-wide checks
+        if [[ "$current_dir" == "$MOVAI_PACKAGING_DIR" ]]; then
+            break
+        fi
+
+        # Move up one level
+        current_dir=$(dirname "$current_dir")
+    done
 }
 
 function strip_replaces_in_package(){
@@ -279,8 +305,9 @@ function register_local_package(){
     SUB_COMPONENT_DIR=$1
 
     cd "${SUB_COMPONENT_DIR}"
-    check_if_package_ignored
+    # check_if_package_ignored
 
+    check_if_package_ignored_recursive
     if [ ${IGNORE_PACKAGE} = "true" ];
     then
         return
@@ -300,8 +327,9 @@ function generate_package(){
     echo -e "${WHITE}\n\n\n\n\n"
 
     cd "${SUB_COMPONENT_DIR}"
-    check_if_package_ignored
+    # check_if_package_ignored
 
+    check_if_package_ignored_recursive
     if [ ${IGNORE_PACKAGE} = "true" ];
     then
         SKIPPED_DEB_BUILDS+=("$SUB_COMPONENT_DIR")
