@@ -50,7 +50,6 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # [] NEED DEDICATED BACKUP - line 68
 RUN apt-get update && apt-get install -y curl &&\
     curl -fsSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg && \
-    add-apt-repository ppa:git-core/ppa -y && \
     # gh cli registry
     curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | \
     gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg && \
