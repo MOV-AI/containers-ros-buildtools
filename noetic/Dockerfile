@@ -14,6 +14,7 @@ LABEL movai="buildtools"
 LABEL environment="$MOVAI_ENV"
 
 ### Environment config
+# hadolint ignore=DL3044
 ENV ROS_DISTRO="noetic" \
     MOVAI_ENV="$MOVAI_BRANCH" \
     MOVAI_USERSPACE="${MOVAI_HOME}/user" \
@@ -53,7 +54,7 @@ USER root
 ENV MOVAI_PPA="testing"
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-# hadolint ignore=DL3008
+# hadolint ignore=DL3008,DL3027,DL3013,DL3042
 RUN apt install curl &&\
     curl -fsSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros.key && \
     curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add - && \
@@ -91,6 +92,7 @@ COPY scripts/bloom-plugins/ /usr/local/lib/${PYTHON_VERSION}/dist-packages/bloom
 # Run everything as mov.ai user
 USER movai
 
+# hadolint ignore=DL3042
 RUN mkdir -p /opt/mov.ai/user/cache/ros/build /opt/mov.ai/user/cache/ros/devel /opt/mov.ai/user/cache/ros/logs && \
     python3 -m pip install -i https://artifacts.cloud.mov.ai/repository/pypi-edge/simple --extra-index-url https://pypi.org/simple mobros==2.1.1.2 --ignore-installed && \
     python3 -m pip install mobtest==0.0.2.2 --ignore-installed

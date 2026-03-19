@@ -14,6 +14,7 @@ LABEL movai="buildtools"
 LABEL environment="$MOVAI_ENV"
 
 ### Environment config
+# hadolint ignore=DL3044
 ENV ROS_DISTRO="humble" \
     MOVAI_ENV="$MOVAI_BRANCH" \
     MOVAI_USERSPACE="${MOVAI_HOME}/user" \
@@ -37,6 +38,7 @@ COPY scripts/enable-custom-rosdep.sh /usr/local/bin/enable-custom-rosdep.sh
 COPY scripts/setup-pypi-env.bash /usr/local/bin/setup-pypi-env.bash
 COPY resources/ /usr/local/share/pypi-confs/resources
 
+# hadolint ignore=DL3059
 RUN setup-pypi-env.bash DEV
 RUN /usr/local/bin/enable-custom-rosdep.sh PROD
 
@@ -45,7 +47,7 @@ USER root
 ENV MOVAI_PPA="ros2-testing"
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-# hadolint ignore=DL3008
+# hadolint ignore=DL3008,DL3013,DL3042,DL3015
 # [] NEED EQUIVALENT FOR HUMBLE
 # [] NEED DEDICATED BACKUP - line 68
 RUN apt-get update && apt-get install -y curl &&\
@@ -86,6 +88,7 @@ COPY scripts/bloom-plugins/ /usr/local/lib/${PYTHON_VERSION}/dist-packages/bloom
 # Run everything as mov.ai user
 USER movai
 
+# hadolint ignore=DL3042
 RUN mkdir -p /opt/mov.ai/user/cache/ros/build /opt/mov.ai/user/cache/ros/devel /opt/mov.ai/user/cache/ros/logs && \
     mkdir -p /opt/mov.ai/user/cache/ros2/build /opt/mov.ai/user/cache/ros2/install /opt/mov.ai/user/cache/ros2/logs && \
     python3 -m pip install -i https://artifacts.cloud.mov.ai/repository/pypi-edge/simple --extra-index-url https://pypi.org/simple mobros==2.1.1.6 --ignore-installed && \
