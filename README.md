@@ -39,30 +39,48 @@ docker build --pull \
 
 ## Getting the Build Script
 
-Download the automated build script:
+The production-ready build script is automatically published to S3 and versioned.
 
+**Latest version:**
 ```bash
-# This will change with the first DeployOnMerge -> s3://movai-scripts/ros-build.bash
-wget https://movai-scripts.s3.amazonaws.com/ros-build2.bash 
-chmod +x ros-build2.bash
+wget -qO ros-build.bash https://movai-scripts.s3.amazonaws.com/movai-scripts/ros-build.bash
+chmod +x ros-build.bash
+```
+
+**Specific version:**
+```bash
+# Replace VERSION with the desired version (e.g., 0.1.0)
+wget -qO ros-build.bash https://movai-scripts.s3.amazonaws.com/movai-scripts/ros-build_VERSION.bash
+chmod +x ros-build.bash
+```
+
+**One-liner download and execute:**
+```bash
+wget -qO - https://movai-scripts.s3.amazonaws.com/movai-scripts/ros-build.bash | bash -s - --help
 ```
 
 ## Usage
 
-Run the script from your workspace directory. The script will build and package the code in that directory:
+Run the script from your workspace directory:
 
 ```bash
 cd /path/to/your/ros/packages
-/path/to/ros-build2.bash
+ros-build.bash 
 ```
 
-Example:
+For help and available options:
+
 ```bash
-cd ~/movai_ros2_packages
-~/containers-ros-buildtools/ros-build2.bash
+ros-build.bash -h
 ```
 
-The script will start a container, install dependencies, build packages, and generate .deb files.
+**Common options:**
+- `-d, --distro` - ROS distribution (humble, noetic). Default: humble
+- `-w, --workspace` - Path to ROS repository. Default: current directory
+- `-k, --keep` - Keep container if build fails (debug mode)
+- `--debug` - Enable debug output
+
+The script will automatically start a Docker container, validate packages, install dependencies, build, and generate .deb files.
 
 **Manual usage (docker):**
 
