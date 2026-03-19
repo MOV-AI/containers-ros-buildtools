@@ -25,5 +25,5 @@ cp -r $IN_CONTAINER_MOUNT_POINT ${IN_CONTAINER_ROS_SRC}
 export MOVAI_PACKAGING_DIR=${IN_CONTAINER_ROS_SRC}
 export MOVAI_OUTPUT_DIR=${IN_CONTAINER_ROS_PACKAGES}
 
-/usr/local/bin/ros1-workspace-build.sh
-/usr/local/bin/ros1-workspace-package.sh
+/usr/local/bin/ros-workspace-build.sh
+/usr/local/bin/ros-workspace-package.sh

@@ -14,7 +14,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-# File: ros1-workspace-build.sh
+# File: ros-workspace-build.sh
 
 
 BUILD_MODE="${BUILD_MODE:-RELEASE}"

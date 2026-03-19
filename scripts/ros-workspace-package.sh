@@ -14,7 +14,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-# File: ros1-workspace-package.sh
+# File: ros-workspace-package.sh
 
 
 #INPUTS NEEDED
@@ -262,6 +262,11 @@ function check_if_package_ignored(){
     fi
 }
 
+'''
+New logic replaces check_if_package_ignored.
+CATKIN_IGNORE is usually placed inside the package folder, while COLCON_IGNORE is often placed at the root of a directory to skip everything inside it.
+This way, if a COLCON_IGNORE is placed at the root of the workspace, it will ignore all packages inside it, while if a CATKIN_IGNORE is placed inside a package, it will ignore just that package.
+'''
 function check_if_package_ignored_recursive() {
     # Start from the current directory
     local current_dir=$(pwd)

@@ -1,29 +1,19 @@
-name: "Build&Deploy ros-buildtools images"
+name: "Test ros-buildtools images on PR"
 
 on:
-  # Trigger the workflow on push or pull request
-  # but only for the main branch
-  # or on tag of type v*.*.*
-  push:
-    branches:
-      - main
-    tags:
-      - 'v*.*.*'
   pull_request:
     branches:
       - main
-  release:
-    types: [released]
 
 jobs:
-  build-and-deploy:
+  test-build:
     uses: MOV-AI/.github/.github/workflows/docker-workflow.yml@v3
     with:
       manifest_file: images-manifest.yml
       docker_registry: registry.aws.cloud.mov.ai
-      deploy: ${{ contains(github.ref, 'refs/heads/main') || contains(github.ref, 'refs/tags/v')}}
+      deploy: false
       version: ${GITHUB_REF##*/}
-      push_latest: ${{ contains(github.ref, 'refs/heads/main') || contains(github.ref, 'refs/tags/v') }}
+      push_latest: false
 
     secrets:
       registry_user: ${{ secrets.PORTUS_APP_USER }}
