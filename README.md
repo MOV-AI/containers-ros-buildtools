@@ -11,12 +11,14 @@ Docker image for building, testing, and packaging ROS applications. Supports ROS
 
 **Noetic (ROS 1):**
 ```bash
-docker build --pull -t ros-buildtools:noetic -f noetic/Dockerfile .
+docker build --pull -t ros-buildtools-noetic:local -f noetic/Dockerfile .
 ```
 
 **Humble (ROS 2):**
 ```bash
-docker build --pull -t ros-buildtools:humble -f humble/Dockerfile .
+docker build --pull -t ros-buildtools-humble:local -f humble/Dockerfile .
+
+
 ```
 
 ### Build Arguments
@@ -33,7 +35,7 @@ docker build --pull \
   --build-arg MOVAI_BRANCH=develop \
   --build-arg MOBROS_VERSION=2.1.1.6 \
   --build-arg MOBTEST_VERSION=0.0.2.2 \
-  -t ros-buildtools:noetic \
+  -t ros-buildtools-noetic:local \
   -f noetic/Dockerfile .
 ```
 
@@ -65,7 +67,7 @@ Run the script from your workspace directory:
 
 ```bash
 cd /path/to/your/ros/packages
-ros-build.bash 
+ros-build.bash
 ```
 
 For help and available options:
@@ -86,12 +88,12 @@ The script will automatically start a Docker container, validate packages, insta
 
 Interactive shell:
 ```bash
-docker run -it -v $(pwd):/workspace ros-buildtools:humble /bin/bash
+docker run -it -v $(pwd):/workspace ros-buildtools-humble:local /bin/bash
 ```
 
 Build packages directly:
 ```bash
-docker run --rm -v $(pwd):/workspace ros-buildtools:humble bash -c "\
+docker run --rm -v $(pwd):/workspace ros-buildtools-humble:local bash -c "\
   mobros build --workspace=/workspace && \
   mobros pack --workspace=/workspace --mode release
 "

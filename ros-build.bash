@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================================
-## Copyright 2026 Mov AI                                                       
+## Copyright 2026 Mov AI
 #
 ## This script mimics the ROS pipeline behavior
 #
@@ -99,13 +99,13 @@ EOF
 validate_distro() {
     local distro=$1
     local valid_distros=("humble" "noetic")
-    
+
     for valid in "${valid_distros[@]}"; do
         if [[ "$distro" == "$valid" ]]; then
             return 0
         fi
     done
-    
+
     log_err "Unsupported ROS distribution: $distro"
     log_err "Supported distributions: ${valid_distros[*]}"
     exit 1
@@ -113,17 +113,17 @@ validate_distro() {
 
 validate_workspace() {
     local workspace=$1
-    
+
     if [[ ! -d "$workspace" ]]; then
         log_err "Workspace path does not exist: $workspace"
         exit 1
     fi
-    
+
     if [[ ! -w "$workspace" ]]; then
         log_err "No write permission for workspace: $workspace"
         exit 1
     fi
-    
+
     log_debug "Workspace validated: $workspace"
 }
 
@@ -132,30 +132,30 @@ check_docker() {
         log_err "Docker is not installed or not in PATH"
         exit 1
     fi
-    
+
     if ! docker info &> /dev/null; then
         log_err "Docker daemon is not running or user lacks permissions"
         log_err "Try: sudo usermod -aG docker \$USER"
         exit 1
     fi
-    
+
     log_debug "Docker is available"
 }
 
 check_docker_image() {
     local image=$1
-    
+
     if ! docker image inspect "$image" &> /dev/null; then
         log_warn "Docker image not found: $image"
         log_warn "Attempting to pull the image..."
-        
+
         if ! docker pull "$image"; then
             log_err "Failed to pull Docker image: $image"
             log_err "Please build the image with: docker build -t $image ."
             exit 1
         fi
     fi
-    
+
     log_debug "Docker image available: $image"
 }
 
@@ -203,7 +203,7 @@ parse_arguments() {
 # Cleanup Function
 cleanup() {
     local exit_code=$?
-    
+
     if [[ -n "$CONTAINER_ID" ]]; then
         if [[ $exit_code -eq 0 ]] || [[ "$KEEP_CONTAINER" -eq 0 ]]; then
             log_info "Cleaning up container: ${CONTAINER_ID:0:12}"
@@ -213,7 +213,7 @@ cleanup() {
             log_warn "Clean up manually with: docker rm -f $CONTAINER_ID"
         fi
     fi
-    
+
     if [[ "$HELP_SHOWN" -eq 0 ]]; then
         if [[ $exit_code -eq 0 ]]; then
             log_info "Build completed successfully!"
@@ -221,7 +221,7 @@ cleanup() {
             log_err "Build failed with exit code: $exit_code"
         fi
     fi
-    
+
     return $exit_code
 }
 
@@ -236,15 +236,15 @@ run_build() {
     log_info "  - Workspace: $WORKSPACE_PATH"
     log_info "  - Mobros Version: $MOBROS_VERSION"
     log_info "  - Mobtest Version: $MOBTEST_VERSION"
-    
+
     # Validate inputs
     validate_distro "$ROS_DISTRO"
     validate_workspace "$WORKSPACE_PATH"
     check_docker
-    
-    local docker_image="ros-buildtools:${ROS_DISTRO}"
+
+    local docker_image="ros-buildtools-${ROS_DISTRO}:$SCRIPT_VERSION"
     check_docker_image "$docker_image"
-    
+
     # Start container
     log_info "Starting Docker container..."
     CONTAINER_ID=$(docker run -td \
@@ -254,41 +254,41 @@ run_build() {
         exit 1
     }
     log_debug "Container started: ${CONTAINER_ID:0:12}"
-    
+
     # Execute build commands
     log_info "Executing build commands in container..."
-    
+
     docker exec -t "$CONTAINER_ID" bash -c "
         set -e
-        
+
         # Install build tools
         echo '[1/6] Installing build tools...'
         python3 -m pip install -i https://artifacts.cloud.mov.ai/repository/pypi-edge/simple \
             --extra-index-url https://pypi.org/simple \
             mobros==${MOBROS_VERSION} --ignore-installed
-        
+
         python3 -m pip install mobtest==${MOBTEST_VERSION} --ignore-installed
-        
+
         # Setup workspace
         echo '[2/6] Setting up workspace...'
         mkdir -p /opt/mov.ai/user/cache/ros/src/
         ln -s ${IN_CONTAINER_MOUNT_POINT}/* /opt/mov.ai/user/cache/ros/src/ || true
-        
+
         export MOVAI_OUTPUT_DIR=${IN_CONTAINER_MOUNT_POINT}/packages
         export PATH=/opt/mov.ai/.local/bin:\$PATH
-        
+
         # Validate packages
         echo '[3/6] Validating packages...'
         mobtest repo \"${IN_CONTAINER_MOUNT_POINT}\"
-        
+
         # Raise packages
         echo '[4/6] Raising packages...'
         mobros raise --workspace=\"${IN_CONTAINER_MOUNT_POINT}\"
-        
+
         # Install build dependencies
         echo '[5/6] Installing build dependencies...'
         sudo mobros install-build-dependencies --workspace=\"${IN_CONTAINER_MOUNT_POINT}\"
-        
+
         # Build packages
         echo '[6/6] Building and packing packages...'
         mobros build
@@ -303,7 +303,7 @@ run_build() {
 # Main Entry Point
 main() {
     log_info "MOV.AI ROS Build Tool"
-    
+
     parse_arguments "$@"
     run_build
 }
