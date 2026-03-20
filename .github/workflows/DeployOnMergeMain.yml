@@ -39,7 +39,7 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Publish artifact to S3
         id: publish
@@ -49,21 +49,24 @@ jobs:
           AWS_DEFAULT_REGION: us-east-1
         shell: bash
         run: |
-          set -x
-          sudo apt-get install python3-setuptools
-          python3 -m pip install --user awscli
-
+          python3 -m pip install --user awscli --quiet
           
-          # Configure AWS credentials
-          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-          aws configure set region $AWS_DEFAULT_REGION
+          # Verify credentials are set
+          if [ -z "$AWS_ACCESS_KEY_ID" ] || [ -z "$AWS_SECRET_ACCESS_KEY" ]; then
+            echo "Error: AWS credentials not set"
+            exit 1
+          fi
           
           # Extract version from images-manifest.yml
           VERSION=$(grep "version:" images-manifest.yml | head -1 | awk '{print $2}')
           
-          # Publish to S3
-          ~/.local/bin/aws s3 cp ./ros-build.bash s3://movai-scripts/ros-build.bash
-          ~/.local/bin/aws s3 cp ./ros-build.bash s3://movai-scripts/ros-build_${VERSION}.bash
+          if [ -z "$VERSION" ]; then
+            echo "Error: Could not extract version from images-manifest.yml"
+            exit 1
+          fi
+          
+          # Publish to S3 (credentials come from env variables automatically)
+          $HOME/.local/bin/aws s3 cp ./ros-build.bash s3://movai-scripts/ros-build.bash
+          $HOME/.local/bin/aws s3 cp ./ros-build.bash s3://movai-scripts/ros-build_${VERSION}.bash
           
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
