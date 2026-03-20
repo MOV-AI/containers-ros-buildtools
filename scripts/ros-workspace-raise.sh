@@ -14,7 +14,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-# File: ros1-workspace-package.sh
+# File: ros-workspace-package.sh
 
 
 #INPUTS NEEDED

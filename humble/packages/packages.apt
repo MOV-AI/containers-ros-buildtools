@@ -7,9 +7,6 @@ software-properties-common
 nano 
 bash 
 openssh-client 
-ros-noetic-catkin 
-python3-catkin-tools 
-python3-osrf-pycommon 
 # packaging dependencies
 debhelper 
 build-essential 
@@ -19,3 +16,5 @@ git-buildpackage
 yamllint
 gh 
 dh-virtualenv
+python3-colcon-common-extensions 
+python3-bloom
