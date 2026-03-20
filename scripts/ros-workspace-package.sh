@@ -14,7 +14,7 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 #
-# File: ros1-workspace-package.sh
+# File: ros-workspace-package.sh
 
 
 #INPUTS NEEDED
@@ -260,7 +260,38 @@ function check_if_package_ignored(){
     then
         IGNORE_PACKAGE="false"
     fi
+}
 
+'''
+New logic replaces check_if_package_ignored.
+CATKIN_IGNORE is usually placed inside the package folder, while COLCON_IGNORE is often placed at the root of a directory to skip everything inside it.
+This way, if a COLCON_IGNORE is placed at the root of the workspace, it will ignore all packages inside it, while if a CATKIN_IGNORE is placed inside a package, it will ignore just that package.
+'''
+function check_if_package_ignored_recursive() {
+    # Start from the current directory
+    local current_dir=$(pwd)
+    local ignore_files=("AMENT_IGNORE" "CATKIN_IGNORE" "COLCON_IGNORE")
+    
+    IGNORE_PACKAGE="false"
+
+    # Walk up the tree until we reach the root or the base packaging directory
+    while [[ "$current_dir" != "" && "$current_dir" != "/" ]]; do
+        for marker in "${ignore_files[@]}"; do
+            if [ -f "$current_dir/$marker" ]; then
+                echo -e "${BROWN}Found $marker at $current_dir. Ignoring sub-tree.${WHITE}"
+                IGNORE_PACKAGE="true"
+                return 0
+            fi
+        done
+
+        # Stop walking up if we've reached the root of the workspace to avoid system-wide checks
+        if [[ "$current_dir" == "$MOVAI_PACKAGING_DIR" ]]; then
+            break
+        fi
+
+        # Move up one level
+        current_dir=$(dirname "$current_dir")
+    done
 }
 
 function strip_replaces_in_package(){
@@ -279,8 +310,8 @@ function register_local_package(){
     SUB_COMPONENT_DIR=$1
 
     cd "${SUB_COMPONENT_DIR}"
-    check_if_package_ignored
 
+    check_if_package_ignored_recursive
     if [ ${IGNORE_PACKAGE} = "true" ];
     then
         return
@@ -300,8 +331,8 @@ function generate_package(){
     echo -e "${WHITE}\n\n\n\n\n"
 
     cd "${SUB_COMPONENT_DIR}"
-    check_if_package_ignored
 
+    check_if_package_ignored_recursive
     if [ ${IGNORE_PACKAGE} = "true" ];
     then
         SKIPPED_DEB_BUILDS+=("$SUB_COMPONENT_DIR")
@@ -457,6 +488,7 @@ sudo apt-get update
 find_main_package_version
 
 WORKSPACE_PACKAGES=()
+echo -e "${MOVAI_PACKAGING_DIR} for packaging"  #debug
 SUB_COMPONENTS="$(dirname $(find -L ${MOVAI_PACKAGING_DIR} -name package.xml) | awk '{ print length, $0 }' | sort -rn | cut -d" " -f2-)"
 for SUB_COMPONENT_PATH in $SUB_COMPONENTS; do
     register_local_package "$SUB_COMPONENT_PATH"
