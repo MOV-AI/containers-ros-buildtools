@@ -49,7 +49,15 @@ jobs:
           AWS_DEFAULT_REGION: us-east-1
         shell: bash
         run: |
-          python3 -m pip install --user awscli --quiet
+          set -x
+          sudo apt-get install python3-setuptools
+          python3 -m pip install --user awscli
+
+          
+          # Configure AWS credentials
+          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+          aws configure set region $AWS_DEFAULT_REGION
           
           # Extract version from images-manifest.yml
           VERSION=$(grep "version:" images-manifest.yml | head -1 | awk '{print $2}')
