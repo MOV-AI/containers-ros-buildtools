@@ -1,0 +1,28 @@
+name: "Test ros-buildtools images on PR"
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test-build:
+    uses: MOV-AI/.github/.github/workflows/docker-workflow.yml@v3
+    with:
+      manifest_file: images-manifest.yml
+      docker_registry: registry.aws.cloud.mov.ai
+      deploy: false
+      version: ${GITHUB_REF##*/}
+      push_latest: false
+
+    secrets:
+      registry_user: ${{ secrets.PORTUS_APP_USER }}
+      registry_password: ${{ secrets.PORTUS_APP_TOKEN }}
+      pub_registry_user: ${{ secrets.PORTUS_APP_USER }}
+      pub_registry_password: ${{ secrets.PORTUS_APP_TOKEN }}
+      github_registry_user: ${{ secrets.RAISE_BOT_COMMIT_USER }}
+      github_registry_password: ${{ secrets.RAISE_BOT_COMMIT_PASSWORD }}
+      snyk_token: ${{ secrets.SNYK_TOKEN }}
+      commit_user: ${{ secrets.RAISE_BOT_COMMIT_USER }}
+      commit_mail: ${{ secrets.RAISE_BOT_COMMIT_MAIL }}
+      commit_token: ${{ secrets.RAISE_BOT_COMMIT_PASSWORD }}

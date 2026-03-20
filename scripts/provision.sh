@@ -62,7 +62,7 @@ if [ -d ${MOVAI_USERSPACE}/packages ]; then
 fi
 
 # We will now build the user ROS1 workspace
-/usr/local/bin/ros1-workspace-build.sh
+/usr/local/bin/ros-workspace-build.sh
 
 # TODO: Install ROS2 workspace
 

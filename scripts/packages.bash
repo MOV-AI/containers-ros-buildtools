@@ -5,7 +5,7 @@ SUDO_COMMANDS=(
     /usr/bin/make
     /usr/bin/python3
     /usr/bin/rosdep
-    /usr/bin/mobros
+    /usr/local/bin/mobros
 )
 
 # Setup available sudo commands for user movai
