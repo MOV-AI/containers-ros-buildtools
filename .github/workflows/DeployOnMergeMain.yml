@@ -55,7 +55,7 @@ jobs:
           VERSION=$(grep "version:" images-manifest.yml | head -1 | awk '{print $2}')
           
           # Publish to S3
-          ~/.local/bin/aws s3 cp ./ros-build2.bash s3://movai-scripts/ros-build.bash
-          ~/.local/bin/aws s3 cp ./ros-build2.bash s3://movai-scripts/ros-build_${VERSION}.bash
+          ~/.local/bin/aws s3 cp ./ros-build.bash s3://movai-scripts/ros-build.bash
+          ~/.local/bin/aws s3 cp ./ros-build.bash s3://movai-scripts/ros-build_${VERSION}.bash
           
           echo "version=${VERSION}" >> $GITHUB_OUTPUT

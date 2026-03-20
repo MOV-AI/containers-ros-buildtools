@@ -51,7 +51,7 @@ RUN setup-pypi-env.bash DEV && \
 
 USER root
 
-ENV MOVAI_PPA="ros2-testing"
+ENV MOVAI_PPA="ppa-ros2-testing testing main"
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # hadolint ignore=DL3008,DL3013,DL3042,DL3015
@@ -64,7 +64,7 @@ RUN apt-get update && apt-get install -y curl &&\
     tee /etc/apt/sources.list.d/github-cli.list > /dev/null && \
     # movai registry
     curl -fsSL https://artifacts.cloud.mov.ai/repository/movai-applications/gpg | gpg --dearmor -o /usr/share/keyrings/movai-archive-keyring.gpg && \
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/movai-archive-keyring.gpg] https://artifacts.cloud.mov.ai/repository/ppa-$MOVAI_PPA testing main" | \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/movai-archive-keyring.gpg] https://artifacts.cloud.mov.ai/repository/$MOVAI_PPA" | \
     tee -a /etc/apt/sources.list.d/movai.list > /dev/null && \
     apt-get update > /dev/null && \
     apt-get install -y python3-pip --reinstall && \

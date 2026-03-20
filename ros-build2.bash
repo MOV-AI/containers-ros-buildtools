@@ -31,6 +31,7 @@ log_debug() {
 
 
 # Default Configuration
+SCRIPT_VERSION="0.1.0"
 ROS_DISTRO="humble"
 WORKSPACE_PATH="$(pwd)"
 KEEP_CONTAINER=0
@@ -229,7 +230,7 @@ trap cleanup EXIT
 
 # Build Execution
 run_build() {
-    log_info "Starting ROS build process..."
+    log_info "Starting ROS build process version $SCRIPT_VERSION..."
     log_info "Configuration:"
     log_info "  - ROS Distribution: $ROS_DISTRO"
     log_info "  - Workspace: $WORKSPACE_PATH"

@@ -13,3 +13,8 @@ serialize = ["{major}.{minor}.{patch}"]
 filename = "images-manifest.yml"
 search = "version: {current_version}"
 replace = "version: {new_version}"
+
+[[tool.bumpversion.files]]
+filename = "ros-build.bash"
+search = "SCRIPT_VERSION={current_version}"
+replace = "SCRIPT_VERSION={new_version}"

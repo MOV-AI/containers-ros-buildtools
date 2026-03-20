@@ -310,7 +310,6 @@ function register_local_package(){
     SUB_COMPONENT_DIR=$1
 
     cd "${SUB_COMPONENT_DIR}"
-    # check_if_package_ignored
 
     check_if_package_ignored_recursive
     if [ ${IGNORE_PACKAGE} = "true" ];
@@ -332,7 +331,6 @@ function generate_package(){
     echo -e "${WHITE}\n\n\n\n\n"
 
     cd "${SUB_COMPONENT_DIR}"
-    # check_if_package_ignored
 
     check_if_package_ignored_recursive
     if [ ${IGNORE_PACKAGE} = "true" ];
