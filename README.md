@@ -51,7 +51,7 @@ chmod +x ros-build.bash
 
 **Specific version:**
 ```bash
-# Replace VERSION with the desired version (e.g., 0.1.0)
+# Replace VERSION with the desired version (e.g., 3.0.0)
 wget -qO ros-build.bash https://movai-scripts.s3.amazonaws.com/movai-scripts/ros-build_VERSION.bash
 chmod +x ros-build.bash
 ```
