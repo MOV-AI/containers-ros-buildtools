@@ -31,7 +31,7 @@ log_debug() {
 
 
 # Default Configuration
-SCRIPT_VERSION="0.1.0"
+SCRIPT_VERSION="3.0.0"
 ROS_DISTRO="humble"
 WORKSPACE_PATH="$(pwd)"
 KEEP_CONTAINER=0
